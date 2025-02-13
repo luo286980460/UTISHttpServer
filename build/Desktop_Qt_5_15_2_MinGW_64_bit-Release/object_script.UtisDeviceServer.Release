@@ -1,0 +1,13 @@
+release/controller.o
+release/controllerworker.o
+release/main.o
+release/mainclass.o
+release/myhttpserver.o
+release/producer.o
+release/producerworker.o
+release/moc_controller.o
+release/moc_controllerworker.o
+release/moc_mainclass.o
+release/moc_myhttpserver.o
+release/moc_producer.o
+release/moc_producerworker.o

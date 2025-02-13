@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_producer_t {
-    QByteArrayData data[9];
-    char stringdata0[104];
+    QByteArrayData data[7];
+    char stringdata0[74];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,14 +38,12 @@ QT_MOC_LITERAL(2, 17, 0), // ""
 QT_MOC_LITERAL(3, 18, 14), // "signalInitWork"
 QT_MOC_LITERAL(4, 33, 25), // "signalProduceMessvoidJson"
 QT_MOC_LITERAL(5, 59, 7), // "strJson"
-QT_MOC_LITERAL(6, 67, 6), // "strKey"
-QT_MOC_LITERAL(7, 74, 23), // "slotProduceMessvoidJson"
-QT_MOC_LITERAL(8, 98, 5) // "topic"
+QT_MOC_LITERAL(6, 67, 6) // "strKey"
 
     },
     "producer\0showMsg\0\0signalInitWork\0"
     "signalProduceMessvoidJson\0strJson\0"
-    "strKey\0slotProduceMessvoidJson\0topic"
+    "strKey"
 };
 #undef QT_MOC_LITERAL
 
@@ -55,7 +53,7 @@ static const uint qt_meta_data_producer[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -63,20 +61,14 @@ static const uint qt_meta_data_producer[] = {
        3,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   34,    2, 0x06 /* Public */,
-       3,    0,   37,    2, 0x06 /* Public */,
-       4,    2,   38,    2, 0x06 /* Public */,
-
- // slots: name, argc, parameters, tag, flags
-       7,    3,   43,    2, 0x0a /* Public */,
+       1,    1,   29,    2, 0x06 /* Public */,
+       3,    0,   32,    2, 0x06 /* Public */,
+       4,    2,   33,    2, 0x06 /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString,    2,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    5,    6,
-
- // slots: parameters
-    QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::QString,    8,    5,    6,
 
        0        // eod
 };
@@ -90,7 +82,6 @@ void producer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 0: _t->showMsg((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 1: _t->signalInitWork(); break;
         case 2: _t->signalProduceMessvoidJson((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 3: _t->slotProduceMessvoidJson((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -148,13 +139,13 @@ int producer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 3)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 4;
+        _id -= 3;
     }
     return _id;
 }

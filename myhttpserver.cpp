@@ -5,19 +5,24 @@
 #include "myhttpserver.h"
 #include "include/libhv/hthread.h"    // import hv_gettid
 #include "include/libhv/hasync.h"     // import hv::async
-#include "lightCmdList.h"
+//#include "lightCmdList.h"
 
 using namespace hv;
 
-MyHttpServer::MyHttpServer(QObject *parent)
+MyHttpServer::MyHttpServer(int port, QObject *parent)
     : QObject(parent)
 {
-    createHttpserver(2333);
+    createHttpserver(port);
 }
 
 MyHttpServer::~MyHttpServer()
 {
     hv::async::cleanup();
+}
+
+void MyHttpServer::updateControllList(QList<Controller *> * controllList)
+{
+    m_controllList = controllList;
 }
 
 void MyHttpServer::createHttpserver(int port)

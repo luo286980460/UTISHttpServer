@@ -30,7 +30,7 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 
     // 打开日志文件（如果未打开）
     if (!s_logFile.isOpen()) {
-        s_logFile.setFileName("D:/QtFile/UTISHttpServer/UtisDeviceServer/UtisDeviceServer/log/qdebugLog.txt"); // 日志文件名
+        s_logFile.setFileName("D:/QtFile/UTISHttpServer/UtisDeviceServer/log/qdebugLog.txt"); // 日志文件名
         s_logFile.open(QIODevice::WriteOnly | QIODevice::Append);
     }
 

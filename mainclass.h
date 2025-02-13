@@ -2,9 +2,11 @@
 #define MAINCLASS_H
 
 #include <QObject>
+#include <QJsonObject>
 
 class MyHttpServer;
 class producer;
+class Controller;   //
 
 class MainClass : public QObject
 {
@@ -13,19 +15,25 @@ public:
     explicit MainClass(QObject *parent = nullptr);
 
     void init();
-    void initProducer();
+    bool initCfgJson();     // 初始化配置文件json
+    bool initHttpserver();  // 初始化HttpServer
+    bool initProducer();    // 初始化kafka
+    bool initControlls();   // 初始化雾灯控制器
 
 private:
 
 signals:
 
 public slots:
+    void slotWrite2Kafka(QString topic,
+                         QString strJson,
+                         QString strKey);
 
 private:
-    MyHttpServer* m_myHttpServer;
-
-    // kafka模块
-    QList<producer*> m_producerList; // kafka创造者列表
+    QJsonObject m_cfgJson;
+    MyHttpServer* m_myHttpServer;           // http
+    QList<producer*> m_producerList;        // kafka创造者列表
+    QList<Controller*> m_controllList;      // 警示灯控制器列表
 };
 
 #endif // MAINCLASS_H

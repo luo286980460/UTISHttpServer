@@ -26,7 +26,6 @@ signals:
     void signalProduceMessvoidJson(QString strJson, QString strKey);
 
 public slots:
-    void slotProduceMessvoidJson(QString topic, QString strJson, QString strKey);
 
 private:
     QThread m_workerThread;     // kafka 工作线程

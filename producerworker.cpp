@@ -59,8 +59,6 @@ void producerWorker::produceMessage(std::string message, std::string key)
 
 void producerWorker::slotProduceMessvoidJson(QString strJson, QString strKey)
 {
-    qDebug() << "slotProduceMessvoidJson";
-
     std::string message = strJson.toStdString();
     std::string key = strKey.toStdString();
     RdKafka::ErrorCode resp;

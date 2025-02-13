@@ -1,0 +1,13 @@
+debug/controller.o
+debug/controllerworker.o
+debug/main.o
+debug/mainclass.o
+debug/myhttpserver.o
+debug/producer.o
+debug/producerworker.o
+debug/moc_controller.o
+debug/moc_controllerworker.o
+debug/moc_mainclass.o
+debug/moc_myhttpserver.o
+debug/moc_producer.o
+debug/moc_producerworker.o
