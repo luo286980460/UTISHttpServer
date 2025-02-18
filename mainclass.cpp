@@ -70,6 +70,7 @@ bool MainClass::initCfgJson()
 bool MainClass::initHttpserver()
 {
     int port = m_cfgJson.value("port").toInt();
+
     if(port < 1) {
         qCritical() << " error UtisDeviceServer Port = " + QString::number(port);
         return false;
@@ -132,10 +133,10 @@ bool MainClass::initControlls()
         int port =                          // 控制器 port
             controllJson.value("port").toInt();
         QString ConnectType =               // 控制器 连接方式
-            controllJson.value("connectType").toString();
+            controllJson.value("connectType").toString().toUpper();
         QJsonArray LightArray =             // 灯id列表
             controllJson.value("lightId").toArray();
-        QStringList LightId;                // 灯id列表
+        QStringList LightId;                // 灯id列表connectType
 
         for(int i=0; i<LightArray.size(); i++){
             LightId << QString::number(LightArray.at(i).toInt());
@@ -149,6 +150,7 @@ bool MainClass::initControlls()
         controll->start();
         controll->connectController(ConnectType);
         controll->addLights(LightId);
+        // emit controll->signalInitTcp(ip, port);
         //emit controll->sigConnectToControl();
     }
 

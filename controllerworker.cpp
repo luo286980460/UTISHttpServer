@@ -146,7 +146,6 @@ void ControllerWorker::sendCmd2Controller()
     QString tmp;
     QEventLoop eventloop;
 
-    //qDebug() << m_cmdList;
     if(m_tcpSocket && m_tcpSocket->state() == QAbstractSocket::ConnectedState){
         //qDebug() << m_tcpSocket->state();
         while(!m_cmdList.isEmpty()){
@@ -174,15 +173,13 @@ void ControllerWorker::sendCmd2Controller()
 
             m_tcpSocket->write(QByteArray::fromHex(tmp.toLatin1()));
             m_tcpSocket->waitForBytesWritten();
-            //msleep(m_sendingInterval);
 
             QTimer::singleShot(m_sendingInterval, &eventloop, SLOT(quit()));
             eventloop.exec();
             m_tcpSocket->write(QByteArray::fromHex(tmp.toLatin1()));
             m_tcpSocket->waitForBytesWritten();
-            //msleep(m_sendingInterval);
 
-           qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg(tmp));
+            qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg(tmp));
             tmp.clear();
         }
     }
@@ -312,8 +309,6 @@ void ControllerWorker::slotSendControlCmd(QStringList cmdList)
 {
     m_cmdList = cmdList;
     workMode = 1;
-
-    //qDebug() << m_ControllerIp << " *** " << m_cmdList;
 }
 
 void ControllerWorker::slotSendCheckCmd(QStringList cmdList)
@@ -321,7 +316,4 @@ void ControllerWorker::slotSendCheckCmd(QStringList cmdList)
     m_cmdCheckState = cmdList;
     m_checkstate = 1;
     // workMode = 1;
-
-    //qDebug() << "slotSendCheckCmd:  " << cmdList;
-
 }

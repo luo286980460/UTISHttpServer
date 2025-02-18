@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QDebug>
-//#include <QHttpServer>
 #include "include/libhv/HttpServer.h"
 
 class Controller;
@@ -21,10 +20,27 @@ public:
 private:
     void createHttpserver(int port);                // 开启httpserver
     bool ipAddrIsOK(const QString & ip);            // 判断字符串是否为合法 ip 地址
-    // QString qstr2Hex(QString instr);                // 汉字 转 16进制
-    // QJsonObject parseLightJson(QJsonObject& json);  // 解析 雾灯 json数据 2.0 版本
+    QString qstr2Hex(QString instr);                // 汉字 转 16进制
     bool missingParameter(QJsonObject& json,        // 是否缺少参数
                           QJsonObject& backJson);
+    bool missingParameterBroadcast(QJsonObject& json,       // parseLightBroadcast 是否缺少必要参数
+                                   QJsonObject& backJson);
+    QJsonObject parseLightBroadcast(QJsonObject& json);     // 解析 雾灯 广播控灯（协议3.0）
+    bool missingParameterBroadcastNot(QJsonObject& json,    // parseLightBroadcast 是否缺少必要参数
+                                      QJsonObject& backJson);
+
+    QJsonObject parseLightBroadcastNot(QJsonObject& json);  // 解析 雾灯 非广播控灯（协议3.0）
+    bool ipPortIsOK(QString ipPort);
+    bool controllerIsUseful(Controller* controller,         // 控制器是否存在，或者是否处在查询状态
+                            QString TermIp,
+                            QJsonObject &backJson);
+    Controller* getControllerFromIpPort(QString ip,         // 从ip和Port获取控制器对象
+                                        int Port);
+    QJsonObject parseUpdateLightState(QJsonObject& json);  // 解析 雾灯 轨迹请求
+    QJsonObject parseLightPathTracking(QJsonObject& json);  // 解析 雾灯 轨迹请求
+
+    // 旧版协议
+    QJsonObject parseLightJson(QJsonObject& json);          // 解析 雾灯 json数据 2.0 版本
 
 signals:
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);

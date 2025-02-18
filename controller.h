@@ -37,7 +37,7 @@ public:
     void connectController(QString ConnectType);        // 连接控制器
     QString getControllIp();
     int getControllPort();
-    void sendControlCmd(QStringList& cmdList, QJsonObject& json);           // 发送控制命令
+    void sendControlCmd(QStringList& cmdList, QJsonObject& json);     // 发送控制命令
     void sendCheckCmd(int& checkMode, QStringList& idList);           // 发送查询命令
     s_light* getLightFromLightId(int lightId);
 

@@ -12,13 +12,6 @@
 					"lightId":[11, 12, 13, 254],
 					"quanXiId":["QuanXiId1", "QuanXiId2", "QuanXiId3", "QuanXiId4"],
 					"connectType":"tcp"
-				},
-				{
-					"ip":"192.168.1.101",
-					"port":8886,
-					"lightId":[11, 12, 13, 254],
-					"quanXiId":["QuanXiId1", "QuanXiId2", "QuanXiId3", "QuanXiId4"],
-					"connectType":"tcp"
 				}
 			]
 		},
