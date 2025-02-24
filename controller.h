@@ -51,8 +51,8 @@ signals:
     void signalFlushAutoCheckCmd(QStringList cmdCheck1, QStringList cmdCheck2, QStringList cmdCheck3);
     void signalSendControlCmd(QStringList cmdList);     // 发送控制命令
     void signalSendCheckCmd(QStringList cmdList);       // 发送查询命令
-    void signalLightPowerOn(bool on);
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
+    void signalLightPowerOn(bool on);       // 电源开关
 
 public slots:
     void slotLightIsOff(int lightId);

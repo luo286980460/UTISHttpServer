@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_ControllerWorker_t {
-    QByteArrayData data[20];
-    char stringdata0[286];
+    QByteArrayData data[22];
+    char stringdata0[306];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -51,7 +51,9 @@ QT_MOC_LITERAL(15, 191, 13), // "cmdCheckState"
 QT_MOC_LITERAL(16, 205, 18), // "cmdCheckPowerState"
 QT_MOC_LITERAL(17, 224, 25), // "cmdCheckPathTrackingDelay"
 QT_MOC_LITERAL(18, 250, 18), // "slotSendControlCmd"
-QT_MOC_LITERAL(19, 269, 16) // "slotSendCheckCmd"
+QT_MOC_LITERAL(19, 269, 16), // "slotSendCheckCmd"
+QT_MOC_LITERAL(20, 286, 16), // "slotLightPowerOn"
+QT_MOC_LITERAL(21, 303, 2) // "on"
 
     },
     "ControllerWorker\0signalLightIsOff\0\0"
@@ -61,7 +63,8 @@ QT_MOC_LITERAL(19, 269, 16) // "slotSendCheckCmd"
     "slotCmd2Controller\0cmdList\0"
     "slotFlushAutoCheckCmd\0cmdCheckState\0"
     "cmdCheckPowerState\0cmdCheckPathTrackingDelay\0"
-    "slotSendControlCmd\0slotSendCheckCmd"
+    "slotSendControlCmd\0slotSendCheckCmd\0"
+    "slotLightPowerOn\0on"
 };
 #undef QT_MOC_LITERAL
 
@@ -71,7 +74,7 @@ static const uint qt_meta_data_ControllerWorker[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -79,19 +82,20 @@ static const uint qt_meta_data_ControllerWorker[] = {
        2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x06 /* Public */,
-       4,    0,   72,    2, 0x06 /* Public */,
+       1,    1,   74,    2, 0x06 /* Public */,
+       4,    0,   77,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    0,   73,    2, 0x0a /* Public */,
-       6,    2,   74,    2, 0x0a /* Public */,
-       9,    0,   79,    2, 0x0a /* Public */,
-      10,    0,   80,    2, 0x0a /* Public */,
-      11,    0,   81,    2, 0x0a /* Public */,
-      12,    1,   82,    2, 0x0a /* Public */,
-      14,    3,   85,    2, 0x0a /* Public */,
-      18,    1,   92,    2, 0x0a /* Public */,
-      19,    1,   95,    2, 0x0a /* Public */,
+       5,    0,   78,    2, 0x0a /* Public */,
+       6,    2,   79,    2, 0x0a /* Public */,
+       9,    0,   84,    2, 0x0a /* Public */,
+      10,    0,   85,    2, 0x0a /* Public */,
+      11,    0,   86,    2, 0x0a /* Public */,
+      12,    1,   87,    2, 0x0a /* Public */,
+      14,    3,   90,    2, 0x0a /* Public */,
+      18,    1,   97,    2, 0x0a /* Public */,
+      19,    1,  100,    2, 0x0a /* Public */,
+      20,    1,  103,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -107,6 +111,7 @@ static const uint qt_meta_data_ControllerWorker[] = {
     QMetaType::Void, QMetaType::QStringList, QMetaType::QStringList, QMetaType::QStringList,   15,   16,   17,
     QMetaType::Void, QMetaType::QStringList,   13,
     QMetaType::Void, QMetaType::QStringList,   13,
+    QMetaType::Void, QMetaType::Bool,   21,
 
        0        // eod
 };
@@ -128,6 +133,7 @@ void ControllerWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 8: _t->slotFlushAutoCheckCmd((*reinterpret_cast< QStringList(*)>(_a[1])),(*reinterpret_cast< QStringList(*)>(_a[2])),(*reinterpret_cast< QStringList(*)>(_a[3]))); break;
         case 9: _t->slotSendControlCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
         case 10: _t->slotSendCheckCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
+        case 11: _t->slotLightPowerOn((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -178,13 +184,13 @@ int ControllerWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 12;
     }
     return _id;
 }

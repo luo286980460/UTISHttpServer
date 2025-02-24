@@ -22,6 +22,8 @@ Controller::Controller(QString ip, int port, QString topic, int sendingInterval,
     connect(this, &Controller::signalFlushAutoCheckCmd, m_work, &ControllerWorker::slotFlushAutoCheckCmd);
     connect(this, &Controller::signalSendControlCmd, m_work, &ControllerWorker::slotSendControlCmd);
     connect(this, &Controller::signalSendCheckCmd, m_work, &ControllerWorker::slotSendCheckCmd);
+    connect(this,&Controller::signalLightPowerOn, m_work,&ControllerWorker::slotLightPowerOn);
+
 
     connect(m_work, &ControllerWorker::signalWrite2Kafka, this, &Controller::slotWrite2Kafka);
     connect(m_work, &ControllerWorker::signalLightIsOff, this, &Controller::slotLightIsOff);

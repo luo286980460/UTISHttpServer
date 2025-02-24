@@ -60,6 +60,7 @@ public slots:
                                QStringList cmdCheckPathTrackingDelay);
     void slotSendControlCmd(QStringList cmdList);     // 发送控制命令
     void slotSendCheckCmd(QStringList cmdList);       // 发送查询命令
+    void slotLightPowerOn(bool on);// 电源开关
 
 
 private:
@@ -70,6 +71,8 @@ private:
     QString m_ConnectType;      // 控制器 连接方式 TCP/UDP
     QString m_ControllerIp;     // 控制器 ip
     int m_ControllerPort;       // 控制器 port
+    bool m_lightPowerOn = false;
+    QString m_connectType;          // 连接方式 TCP/UDP
 
 };
 

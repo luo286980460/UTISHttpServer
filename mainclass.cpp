@@ -8,8 +8,6 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 
-#define INIFILE_KAFKA   "/kafka.ini"
-#define INIFILE_LIGHT   "/Controllers.inicfg.json"
 #define CFG_JSON        "/cfg.json"
 
 

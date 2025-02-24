@@ -54,6 +54,13 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
 
         return resp->String(QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString());
     });
@@ -65,7 +72,13 @@ void MyHttpServer::createHttpserver(int port)
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
-        qDebug() << "jsonObj: " << jsonObj;
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
 
         return resp->String(QJsonDocument(parseLightBroadcastNot(jsonObj)).toJson().toStdString());
     });
@@ -77,6 +90,13 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
         return resp->String(QJsonDocument(parseLightPathTracking(jsonObj)).toJson().toStdString());
     });
 
@@ -86,6 +106,13 @@ void MyHttpServer::createHttpserver(int port)
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
 
         return resp->String(QJsonDocument(parseUpdateLightState(jsonObj)).toJson().toStdString());
     });
@@ -118,10 +145,10 @@ void MyHttpServer::createHttpserver(int port)
     m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 =  {
-            {"time", "最后更新时间：2025年02月18日"},
+            {"time", "最后更新时间：2025年02月24日"},
             {"Name", "尤特斯设备服务"},
-            {"Version", "0.4"},
-            {"Msg", "，支持警示灯新版，有kafka，测试中"}
+            {"Version", "0.5"},
+            {"Msg", "支持警示灯新版，有kafka，此版本还在测试中，后续可能修改功能以及协议"}
         };
         return resp->Json(ex3);
         //return resp->String("connected............");
@@ -348,19 +375,36 @@ bool MyHttpServer::missingParameterBroadcast(QJsonObject &json, QJsonObject &bac
         return true;
     }
 
+
     // 控制器 设备编号
-    if(json.find("DeviceId") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 DeviceId ";
-        return true;
-    }else if(!json.value("DeviceId").isString()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "DeviceId 数据类型错误 应该为 string";
-        return true;
-    }
+    // if(json.find("DeviceId") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 DeviceId ";
+    //     return true;
+    // }else if(!json.value("DeviceId").isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "DeviceId 数据类型错误 应该为 string";
+    //     return true;
+    // }
+
+    // 文字 内容
+    // if(json.find("Content") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Content ";
+    //     return true;
+    // }else if(!json.value("Content").isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Content 数据类型错误 应该为 string";
+    //     return true;
+    // }else if(json.value("Content").toString().size() == 0){
+    //     return false;
+    // }else if(json.value("Content").toString().size() != 1){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Content值 数量只能为1/0";
+    //     return true;
+    // }
 
     // 灯 版本
-    int version = json.value("Version").toInt();
     if(json.find("Version") == json.end()) {
         backJson.find("code").value() = 1;
         backJson.find("msg").value() = "缺少必要参数 Version ";
@@ -375,120 +419,105 @@ bool MyHttpServer::missingParameterBroadcast(QJsonObject &json, QJsonObject &bac
         return true;
     }
 
-    // 文字 内容
-    if(json.find("Content") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 Content ";
-        return true;
-    }else if(!json.value("Content").isString()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Content 数据类型错误 应该为 string";
-        return true;
-    }else if(json.value("Content").toString().size() != 1 ){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Content值 数量只能为1";
-        return true;
-    }
-
     // 文字 颜色
-    if(version == 2){
-        if(json.find("FontColor") == json.end()) {
-            backJson.find("code").value() = 1;
-            backJson.find("msg").value() = "version为2时 缺少必要参数 FontColor ";
-            return true;
-        }else if(!json.value("FontColor").isDouble()){
-            backJson.find("code").value() = 1;        if(json.find("FontColor") == json.end()) {
-                backJson.find("code").value() = 1;
-                backJson.find("msg").value() = "缺少必要参数 FontColor ";
-                return true;
-            }else if(!json.value("FontColor").isDouble()){
-                backJson.find("code").value() = 1;
-                backJson.find("msg").value() = "FontColor 数据类型错误 应该为 int";
-                return true;
-            }else if(json.value("FontColor").toInt() < 1 || json.value("FontColor").toInt() > 9 ){
-                backJson.find("code").value() = 1;
-                backJson.find("msg").value() = "FontColor 应该为 1-9";
-                return true;
-            }
-            backJson.find("msg").value() = "FontColor 数据类型错误 应该为 int";
-            return true;
-        }else if(json.value("FontColor").toInt() < 1 || json.value("FontColor").toInt() > 9 ){
-            backJson.find("code").value() = 1;
-            backJson.find("msg").value() = "FontColor 应该为 1-9";
-            return true;
-        }
-    }
+    // if(version == 2){
+    //     if(json.find("FontColor") == json.end()) {
+    //         backJson.find("code").value() = 1;
+    //         backJson.find("msg").value() = "version为2时 缺少必要参数 FontColor ";
+    //         return true;
+    //     }else if(!json.value("FontColor").isDouble()){
+    //         backJson.find("code").value() = 1;        if(json.find("FontColor") == json.end()) {
+    //             backJson.find("code").value() = 1;
+    //             backJson.find("msg").value() = "缺少必要参数 FontColor ";
+    //             return true;
+    //         }else if(!json.value("FontColor").isDouble()){
+    //             backJson.find("code").value() = 1;
+    //             backJson.find("msg").value() = "FontColor 数据类型错误 应该为 int";
+    //             return true;
+    //         }else if(json.value("FontColor").toInt() < 1 || json.value("FontColor").toInt() > 9 ){
+    //             backJson.find("code").value() = 1;
+    //             backJson.find("msg").value() = "FontColor 应该为 1-9";
+    //             return true;
+    //         }
+    //         backJson.find("msg").value() = "FontColor 数据类型错误 应该为 int";
+    //         return true;
+    //     }else if(json.value("FontColor").toInt() < 1 || json.value("FontColor").toInt() > 9 ){
+    //         backJson.find("code").value() = 1;
+    //         backJson.find("msg").value() = "FontColor 应该为 1-9";
+    //         return true;
+    //     }
+    // }
 
     // 灯 亮度
-    if(json.find("Luminance") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 Luminance ";
-        return true;
-    }else if(!json.value("Luminance").isDouble()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Luminance 数据类型错误 应该为 int";
-        return true;
-    }else if(json.value("Luminance").toInt() < 1 || json.value("Luminance").toInt() > 100 ){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Luminance 应该为 1-100";
-        return true;
-    }
+    // if(json.find("Luminance") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Luminance ";
+    //     return true;
+    // }else if(!json.value("Luminance").isDouble()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Luminance 数据类型错误 应该为 int";
+    //     return true;
+    // }else if(json.value("Luminance").toInt() < 1 || json.value("Luminance").toInt() > 100 ){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Luminance 应该为 1-100";
+    //     return true;
+    // }
 
-    // 灯 轨迹模式
-    if(json.find("PathTracking") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 PathTracking ";
-        return true;
-    }else if(!json.value("PathTracking").isDouble()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "PathTracking 数据类型错误 应该为 int";
-        return true;
-    }else if(json.value("PathTracking").toInt() < 0 || json.value("PathTracking").toInt() > 2 ){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "PathTracking 应该为 0-2";
-        return true;
-    }
+    // // 灯 轨迹模式
+    // if(json.find("PathTracking") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 PathTracking ";
+    //     return true;
+    // }else if(!json.value("PathTracking").isDouble()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "PathTracking 数据类型错误 应该为 int";
+    //     return true;
+    // }else if(json.value("PathTracking").toInt() < 0 || json.value("PathTracking").toInt() > 2 ){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "PathTracking 应该为 0-2";
+    //     return true;
+    // }
 
-    // 灯 轨迹延时
-    if(json.find("PathTrackingTime") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 PathTrackingTime ";
-        return true;
-    }else if(!json.value("PathTrackingTime").isDouble()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "PathTrackingTime 数据类型错误 应该为 int";
-        return true;
-    }else if(json.value("PathTrackingTime").toInt() < 1 || json.value("PathTrackingTime").toInt() > 20 ){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "PathTrackingTime 应该为 0-2";
-        return true;
-    }
+    // // 灯 轨迹延时
+    // if(json.find("PathTrackingTime") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 PathTrackingTime ";
+    //     return true;
+    // }else if(!json.value("PathTrackingTime").isDouble()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "PathTrackingTime 数据类型错误 应该为 int";
+    //     return true;
+    // }else if(json.value("PathTrackingTime").toInt() < 1 || json.value("PathTrackingTime").toInt() > 20 ){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "PathTrackingTime 应该为 0-2";
+    //     return true;
+    // }
 
     // 灯 闪烁(size == 0时，为不闪烁）
-    QJsonArray FlickerArray = json.value("Flicker").toArray();
-    if(json.find("Flicker") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 Flicker ";
-        return true;
-    }else if(!json.value("Flicker").isArray()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Flicker 数据类型错误 应该为 array";
-        return true;
-    }else if(FlickerArray.size() != 2){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Flicker 数据数量错误 应该为 2个int";
-        return true;
-    }else if(!FlickerArray.at(0).isDouble() || !FlickerArray.at(1).isDouble()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Flicker内部数据 数据类型错误 应该为 int";
-        return true;
-    }else if(FlickerArray.at(0).toInt() < 250 || FlickerArray.at(0).toInt() > 10000
-               || FlickerArray.at(1).toInt() < 250 || FlickerArray.at(1).toInt() > 10000){
+    // QJsonArray FlickerArray = json.value("Flicker").toArray();
+    // if(json.find("Flicker") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Flicker ";
+    //     return true;
+    // }else if(!json.value("Flicker").isArray()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Flicker 数据类型错误 应该为 array";
+    //     return true;
+    // }else if(FlickerArray.size() != 2){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Flicker 数据数量错误 应该为 2个int";
+    //     return true;
+    // }else if(!FlickerArray.at(0).isDouble() || !FlickerArray.at(1).isDouble()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Flicker内部数据 数据类型错误 应该为 int";
+    //     return true;
+    // }else if(FlickerArray.at(0).toInt() < 250 || FlickerArray.at(0).toInt() > 10000
+    //            || FlickerArray.at(1).toInt() < 250 || FlickerArray.at(1).toInt() > 10000){
 
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Flicker内部数据 数据类值错误 应该为 250 - 10000";
-        return true;
-    }
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Flicker内部数据 数据类值错误 应该为 250 - 10000";
+    //     return true;
+    // }
 
     return false;
 
@@ -505,7 +534,153 @@ QJsonObject MyHttpServer::parseLightBroadcast(QJsonObject &json)
     if(missingParameterBroadcast(json, backJson)){
         return backJson;
     }
+    int version = json.value("Version").toInt();
+    QStringList sendDataList;                       // 需要发送的命令列表
+    QString ControllerIpPort                                // 控制器 ip:port
+        = json["ControllerIpPort"].toString();
+    QString ip = ControllerIpPort.split(":").at(0);         // 控制器 ip
+    int port = ControllerIpPort.split(":").at(1).toInt();   // 控制器 port
+    Controller* controller = getControllerFromIpPort(ip, port); // 控制器
 
+    QString cmdStr; // 发送给雾灯的命令
+    // 如果需要改文字 内容
+    if(json.find("Content") != json.end()) {
+        QString content;
+        int contentSize;
+        cmdStr = QString(DISPLAY_FONT).replace("%1", "FF");     // 需要发送的命令
+
+        if(!json.value("Content").isString()){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Content 数据类型错误 应该为 string";
+            return backJson;
+        }
+
+        content = json.value("Content").toString();
+        contentSize = content.size();
+
+        if(contentSize != 0 && contentSize != 1){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Content值 数量只能为1/0";
+            return backJson;
+        }
+
+        if(json.value("Content").toString().size() == 1){     // 亮灯
+            // 打开电源
+            emit controller->signalLightPowerOn(true);
+
+            cmdStr.replace("%2", qstr2Hex(content));
+        }else{                                              // 灭灯
+            // 关闭电源
+            emit controller->signalLightPowerOn(false);
+
+            cmdStr.replace("%2", "A0 F0");
+        }
+
+        sendDataList.insert(0, cmdStr.toUpper());
+        cmdStr.clear();
+    }
+
+    // 如果需要改 颜色
+    if(json.find("FontColor") != json.end()) {
+
+        if(!json.value("FontColor").isDouble()){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "FontColor 类型应该为 int";
+            return backJson;
+        }
+
+        int fontColor = json.value("FontColor").toInt();
+        if(fontColor < 1 || fontColor > 9) {          // 亮度值不合法
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "FontColor值不合法,应该为 1 - 9";
+            return backJson;
+        }
+
+        cmdStr = CHANGE_LIGHT_COLOR;     // 需要发送的命令
+        cmdStr = QString(cmdStr).arg(fontColor,2,16,QLatin1Char('0'));
+        cmdStr.replace("%2", "00");
+
+
+        if(version == 1){
+            backJson.find("code").value() = 0;
+            backJson.find("msg").value() = "version 类型为1 不支持修改颜色， 其他命令正常执行";
+        }else{
+            sendDataList.insert(0, cmdStr.toUpper());
+        }
+    }
+
+    // 如果需要改 亮度
+    if(json.find("Luminance") != json.end()){
+        if(!json.value("Luminance").isDouble()){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Luminance 类型应该为 int";
+            return backJson;
+        }
+
+        int luminance = json.value("Luminance").toInt();
+        if(luminance < 1 || luminance > 100) {          // 亮度值不合法
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Luminance,应该为 1 - 100";
+            return backJson;
+        }
+
+        cmdStr = CMD_LUMINANCE;
+        sendDataList.insert(0, QString(cmdStr).arg(luminance, 2, 16, QLatin1Char('0')).toUpper());
+    }
+
+    // 如果需要改 闪烁
+    if(json.find("Flicker") != json.end()){
+        if(!json.value("Flicker").isArray()){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Flicker 内的数据应该为 int类型的Array";
+            return backJson;
+        }
+
+        QJsonArray flickerJsonArray = json.value("Flicker").toArray();
+        if(flickerJsonArray.size() != 0 && flickerJsonArray.size() != 2){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "Flicker内Array的size应该为0或者2";
+            return backJson;
+        }
+
+        cmdStr = CMD_FLICKER;
+        int sec1 = flickerJsonArray.at(0).toInt();
+        int sec2 = flickerJsonArray.at(1).toInt();
+
+        // 关闭闪烁
+        if(sec1 == 0 || sec2 == 0 || flickerJsonArray.size() == 0){
+            sendDataList.insert(0, cmdStr.arg(16,2,16,QLatin1Char('0'))
+                                       .arg(0,2,16,QLatin1Char('0')).toUpper());
+        }else{  // 闪烁
+            if(version == 1){
+                if(sec1 < 1000 || sec1 > 10000 || sec2 < 1000 || sec2 > 10000){
+                    backJson.find("code").value() = 1;
+                    backJson.find("msg").value() = "Version1 闪烁值不合法 1000~10000";
+                    return backJson;
+                }
+                sendDataList.insert(0, QString("ff 77 ff %1 %2 aa")
+                                           .arg(QString::asprintf("%.0f", sec1*0.45).toInt()/100,2,16,QLatin1Char('0'))
+                                           .arg(QString::asprintf("%.0f", sec2*1.18).toInt()/100,2,16,QLatin1Char('0')));
+            }else{
+                if(sec1 < 250 || sec1 > 10000 || sec2 < 250 || sec2 > 10000){
+                    backJson.find("code").value() = 1;
+                    backJson.find("msg").value() = "Version2 闪烁值不合法 250~10000";
+                    return backJson;
+                }
+                sendDataList.insert(0, cmdStr.arg(sec1/20,2,16,QLatin1Char('0'))
+                                           .arg(sec2/20,2,16,QLatin1Char('0')).toUpper());
+            }
+        }
+    }
+
+    if(!controllerIsUseful(controller, ControllerIpPort, backJson)){
+        return backJson;
+    }
+
+
+    qDebug() << " sendDataList " << sendDataList;
+    // 发送命令
+    controller->signalSendControlCmd(sendDataList);
     return backJson;
 }
 
@@ -527,30 +702,30 @@ bool MyHttpServer::missingParameterBroadcastNot(QJsonObject &json, QJsonObject &
     }
 
     // 控制器 设备编号
-    if(json.find("DeviceId") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 DeviceId ";
-        return true;
-    }else if(!json.value("DeviceId").isString()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "DeviceId 数据类型错误 应该为 string";
-        return true;
-    }
+    // if(json.find("DeviceId") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 DeviceId ";
+    //     return true;
+    // }else if(!json.value("DeviceId").isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "DeviceId 数据类型错误 应该为 string";
+    //     return true;
+    // }
 
     // 灯 版本
-    if(json.find("Version") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 Version ";
-        return true;
-    }else if(!json.value("Version").isDouble()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Version 数据类型错误 应该为 int";
-        return true;
-    }else if(json.value("Version").toInt() != 1 && json.value("Version").toInt() != 2 ){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "Version 值 应该为 1或者2";
-        return true;
-    }
+    // if(json.find("Version") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Version ";
+    //     return true;
+    // }else if(!json.value("Version").isDouble()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Version 数据类型错误 应该为 int";
+    //     return true;
+    // }else if(json.value("Version").toInt() != 1 && json.value("Version").toInt() != 2 ){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Version 值 应该为 1或者2";
+    //     return true;
+    // }
 
     // 灯 具体数据
     QJsonArray lightsArray = json.value("Lights").toArray();
@@ -601,19 +776,19 @@ bool MyHttpServer::missingParameterBroadcastNot(QJsonObject &json, QJsonObject &
             return true;
         }
 
-        if(jsonLight.find("FontColor") == jsonLight.end()) {
-            backJson.find("code").value() = 1;
-            backJson.find("msg").value() = "Lights内部数据 缺少必要参数 FontColor ";
-            return true;
-        }else if(!jsonLight.value("FontColor").isDouble()){
-            backJson.find("code").value() = 1;
-            backJson.find("msg").value() = "Lights内部数据 FontColor 数据类型错误 应该为 int";
-            return true;
-        }else if(jsonLight.value("FontColor").toInt() < 1 || jsonLight.value("FontColor").toInt() > 9 ){
-            backJson.find("code").value() = 1;
-            backJson.find("msg").value() = "Lights内部数据 FontColor 应该为 1-9";
-            return true;
-        }
+        // if(jsonLight.find("FontColor") == jsonLight.end()) {
+        //     backJson.find("code").value() = 1;
+        //     backJson.find("msg").value() = "Lights内部数据 缺少必要参数 FontColor ";
+        //     return true;
+        // }else if(!jsonLight.value("FontColor").isDouble()){
+        //     backJson.find("code").value() = 1;
+        //     backJson.find("msg").value() = "Lights内部数据 FontColor 数据类型错误 应该为 int";
+        //     return true;
+        // }else if(jsonLight.value("FontColor").toInt() < 1 || jsonLight.value("FontColor").toInt() > 9 ){
+        //     backJson.find("code").value() = 1;
+        //     backJson.find("msg").value() = "Lights内部数据 FontColor 应该为 1-9";
+        //     return true;
+        // }
     }
 
     return false;
@@ -630,6 +805,32 @@ QJsonObject MyHttpServer::parseLightBroadcastNot(QJsonObject &json)
     if(missingParameterBroadcastNot(json, backJson)){
         return backJson;
     }
+
+    QString ControllerIpPort = json["ControllerIpPort"].toString();     // 获取控制器 ip:port
+    QString ip = ControllerIpPort.split(":").at(0);                     // 控制器 ip
+    int port = ControllerIpPort.split(":").at(1).toInt();               // 控制器 port
+    Controller* controller = nullptr;
+    QJsonArray lightArray = json.value("Lights").toArray();             // 灯列表
+    QStringList sendDataList;                                           // 需要发送的命令列表
+    QString cmdStr = DISPLAY_FONT;
+
+    // 获取控制器
+    controller = getControllerFromIpPort(ip, port);
+
+    if(!controllerIsUseful(controller, ControllerIpPort, backJson)){
+        return backJson;
+    }
+
+    for(int i=0; i<lightArray.size(); i++){
+        QJsonObject lightJson = lightArray.at(i).toObject();
+        sendDataList.append(QString(cmdStr)
+                                .arg(lightJson.value("LightId").toInt(), 2, 16, QLatin1Char('0'))
+                                .arg(qstr2Hex(lightJson.value("Content").toString())).toUpper());
+    }
+
+    // 打开电源
+    emit controller->signalLightPowerOn(true);
+    controller->signalSendControlCmd(sendDataList);
 
     return backJson;
 }

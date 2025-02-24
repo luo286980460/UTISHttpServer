@@ -1,9 +1,11 @@
 ﻿#include "controllerworker.h"
+#include "lightCmdList.h"
 
 #include <QDateTime>
 #include <QTimer>
 #include <QEventLoop>
 #include <QJsonDocument>
+#include <QThread>
 
 ControllerWorker::ControllerWorker(QString ip, int port, int sendingInterval, int sendingCount, QString ConnectType, QObject *parent)
     : QObject{parent}
@@ -193,6 +195,7 @@ void ControllerWorker::slotInitWorker()
 void ControllerWorker::slotInitTcp(QString ip, int port)
 {
     m_tcpSocket = new QTcpSocket(this);
+    m_connectType = "TCP";
 
     qDebug() << (QString("控制器:%1:%2[正在连接]").arg(ip).arg(port));
     m_tcpSocket->connectToHost(ip, port);
@@ -201,35 +204,35 @@ void ControllerWorker::slotInitTcp(QString ip, int port)
     if (m_tcpSocket->waitForConnected(1000))  // 连接
     {
         qDebug() << (QString("控制器【%1:%2】连接成功").arg(ip).arg(port));
-        return;
     }else{
         qDebug() << (QString("控制器【%1:%2】连接失败").arg(ip).arg(port));
-        return;
     }
 
-
+    return;
     //connect(m_tcpSocket,SIGNAL(readyRead()), this, SLOT(slotReadyReadTcp()));
     //connect(m_tcpSocket, SIGNAL(disconnected()));
     // connect(m_tcpSocket, &QTcpSocket::stateChanged, this, [this](){
-    //     emit showMsg(QString("[%1] stateChanged to %2").arg(m_ControllerIpPort).arg(m_tcpSocket->state()));
+    //     qDebug() << (QString("[%1] stateChanged to %2").arg(m_ControllerIpPort).arg(m_tcpSocket->state()));
     // });
     // connect(m_tcpSocket, &QTcpSocket::disconnected, this, [this](){
-    //     emit showMsg(QString("[%1] disconnected!").arg(m_ControllerIpPort));
+    //     qDebug() << (QString("[%1] disconnected!").arg(m_ControllerIpPort));
     // });
 }
 
 void ControllerWorker::slotInitUdp()
 {
+    m_connectType = "UDP";
     m_udpSocket = new QUdpSocket(this);
+
 
     //connect(m_udpSocket,SIGNAL(readyRead()), this, SLOT(slotReadyReadUdp()));
 
     //connect(m_tcpSocket, SIGNAL(disconnected()));
     // connect(m_tcpSocket, &QUdpSocket::stateChanged, [this](){
-    //     emit showMsg(QString("[%1] stateChanged to %2").arg(m_controllIp).arg(m_tcpSocket->state()));
+    //     qDebug() << (QString("[%1] stateChanged to %2").arg(m_controllIp).arg(m_tcpSocket->state()));
     // });
     // connect(m_tcpSocket, &QUdpSocket::disconnected, [this](){
-    //     emit showMsg(QString("[%1] disconnected!").arg(m_controllIp));
+    //     qDebug() << (QString("[%1] disconnected!").arg(m_controllIp));
     // });
 }
 
@@ -316,4 +319,32 @@ void ControllerWorker::slotSendCheckCmd(QStringList cmdList)
     m_cmdCheckState = cmdList;
     m_checkstate = 1;
     // workMode = 1;
+}
+
+void ControllerWorker::slotLightPowerOn(bool on)
+{
+    if(m_lightPowerOn == on) return;
+
+    m_lightPowerOn = on;
+
+    // 灯柱电源开关
+    QString cmd = on ? CMD_POWER_ON : CMD_POWER_OFF;
+
+    if(on){
+        //qDebug() << QString("开电时间:%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz"));
+        qDebug() << (QString("[%1]  控制器:%2[%3]  开电").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz")).arg(m_ControllerIp).arg(cmd));
+    }else{
+        //qDebug() << QString("关电时间:%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz"));
+        qDebug() << (QString("[%1]  控制器:%2[%3]  关电").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz")).arg(m_ControllerIp).arg(cmd));
+    }
+
+    if(m_connectType == "TCP"){
+        m_tcpSocket->write(QByteArray::fromHex(cmd.toLatin1()));
+        m_tcpSocket->waitForBytesWritten();
+    }else{
+        m_udpSocket->writeDatagram(QByteArray::fromHex(cmd.toLatin1()), QHostAddress(m_ControllerIp), m_ControllerPort);
+    }
+
+
+    QThread::msleep(500);
 }

@@ -373,6 +373,28 @@ debug/moc_mainclass.cpp: ../../mainclass.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatetime.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborcommon.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregularexpression.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurlquery.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/quuid.h \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
 	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/QtFile/UTISHttpServer/UtisDeviceServer/build/Desktop_Qt_5_15_2_MinGW_64_bit-Release/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/QtFile/UTISHttpServer/UtisDeviceServer -ID:/QtFile/UTISHttpServer/UtisDeviceServer/include/libhv -ID:/QtFile/UTISHttpServer/UtisDeviceServer/include/libhv -ID:/QtFile/UTISHttpServer/UtisDeviceServer/include/librdkafka -ID:/QtFile/UTISHttpServer/UtisDeviceServer/include/librdkafka -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\..\mainclass.h -o debug\moc_mainclass.cpp
@@ -797,11 +819,16 @@ debug/controllerworker.o: ../../controllerworker.cpp ../../controllerworker.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimer \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtimer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasictimer.h \
+		../../lightCmdList.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDateTime \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QEventLoop \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qeventloop.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonDocument \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsondocument.h
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsondocument.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qthread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdeadlinetimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\controllerworker.o ..\..\controllerworker.cpp
 
 debug/main.o: ../../main.cpp D:/Qt/5.15.2/mingw81_64/include/QtCore/QCoreApplication \
@@ -879,7 +906,16 @@ debug/main.o: ../../main.cpp D:/Qt/5.15.2/mingw81_64/include/QtCore/QCoreApplica
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDateTime \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatetime.h \
 		../../mainclass.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborcommon.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregularexpression.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurlquery.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/quuid.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\main.o ..\..\main.cpp
 
 debug/mainclass.o: ../../mainclass.cpp ../../mainclass.h \
@@ -936,20 +972,30 @@ debug/mainclass.o: ../../mainclass.cpp ../../mainclass.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
-		../../myhttpserver.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborvalue.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatetime.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborcommon.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregularexpression.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurlquery.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/quuid.h \
+		../../myhttpserver.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
 		../../include/libhv/HttpServer.h \
 		../../include/libhv/hexport.h \
 		../../include/libhv/hssl.h \
@@ -980,16 +1026,6 @@ debug/mainclass.o: ../../mainclass.cpp ../../mainclass.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h \
 		../../controller.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonObject \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonobject.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonvalue.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborvalue.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatetime.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcborcommon.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregularexpression.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurl.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qurlquery.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/quuid.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonArray \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonarray.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QCoreApplication \
@@ -1000,7 +1036,9 @@ debug/mainclass.o: ../../mainclass.cpp ../../mainclass.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QFileInfo \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfileinfo.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfile.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfiledevice.h
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfiledevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonDocument \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsondocument.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\mainclass.o ..\..\mainclass.cpp
 
 debug/myhttpserver.o: ../../myhttpserver.cpp D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonDocument \
@@ -1081,6 +1119,8 @@ debug/myhttpserver.o: ../../myhttpserver.cpp D:/Qt/5.15.2/mingw81_64/include/QtC
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonobject.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonArray \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qjsonarray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTextCodec \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextcodec.h \
 		../../myhttpserver.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
@@ -1107,10 +1147,17 @@ debug/myhttpserver.o: ../../myhttpserver.cpp D:/Qt/5.15.2/mingw81_64/include/QtC
 		../../include/libhv/hsocket.h \
 		../../include/libhv/Buffer.h \
 		../../include/libhv/HttpContext.h \
+		../../controller.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qthread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdeadlinetimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		../../include/libhv/hthread.h \
 		../../include/libhv/hasync.h \
 		../../include/libhv/hthreadpool.h \
-		../../include/libhv/singleton.h
+		../../include/libhv/singleton.h \
+		../../lightCmdList.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\myhttpserver.o ..\..\myhttpserver.cpp
 
 debug/producer.o: ../../producer.cpp D:/Qt/5.15.2/mingw81_64/include/QtCore/QSettings \

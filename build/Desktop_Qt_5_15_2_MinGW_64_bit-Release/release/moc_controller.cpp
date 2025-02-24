@@ -46,12 +46,12 @@ QT_MOC_LITERAL(10, 109, 9), // "cmdCheck3"
 QT_MOC_LITERAL(11, 119, 20), // "signalSendControlCmd"
 QT_MOC_LITERAL(12, 140, 7), // "cmdList"
 QT_MOC_LITERAL(13, 148, 18), // "signalSendCheckCmd"
-QT_MOC_LITERAL(14, 167, 18), // "signalLightPowerOn"
-QT_MOC_LITERAL(15, 186, 2), // "on"
-QT_MOC_LITERAL(16, 189, 17), // "signalWrite2Kafka"
-QT_MOC_LITERAL(17, 207, 5), // "topic"
-QT_MOC_LITERAL(18, 213, 7), // "strJson"
-QT_MOC_LITERAL(19, 221, 6), // "strKey"
+QT_MOC_LITERAL(14, 167, 17), // "signalWrite2Kafka"
+QT_MOC_LITERAL(15, 185, 5), // "topic"
+QT_MOC_LITERAL(16, 191, 7), // "strJson"
+QT_MOC_LITERAL(17, 199, 6), // "strKey"
+QT_MOC_LITERAL(18, 206, 18), // "signalLightPowerOn"
+QT_MOC_LITERAL(19, 225, 2), // "on"
 QT_MOC_LITERAL(20, 228, 14), // "slotLightIsOff"
 QT_MOC_LITERAL(21, 243, 7), // "lightId"
 QT_MOC_LITERAL(22, 251, 15) // "slotWrite2Kafka"
@@ -61,10 +61,9 @@ QT_MOC_LITERAL(22, 251, 15) // "slotWrite2Kafka"
     "ip\0port\0signalInitUdp\0signalFlushAutoCheckCmd\0"
     "cmdCheck1\0cmdCheck2\0cmdCheck3\0"
     "signalSendControlCmd\0cmdList\0"
-    "signalSendCheckCmd\0signalLightPowerOn\0"
-    "on\0signalWrite2Kafka\0topic\0strJson\0"
-    "strKey\0slotLightIsOff\0lightId\0"
-    "slotWrite2Kafka"
+    "signalSendCheckCmd\0signalWrite2Kafka\0"
+    "topic\0strJson\0strKey\0signalLightPowerOn\0"
+    "on\0slotLightIsOff\0lightId\0slotWrite2Kafka"
 };
 #undef QT_MOC_LITERAL
 
@@ -88,8 +87,8 @@ static const uint qt_meta_data_Controller[] = {
        7,    3,   71,    2, 0x06 /* Public */,
       11,    1,   78,    2, 0x06 /* Public */,
       13,    1,   81,    2, 0x06 /* Public */,
-      14,    1,   84,    2, 0x06 /* Public */,
-      16,    3,   87,    2, 0x06 /* Public */,
+      14,    3,   84,    2, 0x06 /* Public */,
+      18,    1,   91,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
       20,    1,   94,    2, 0x0a /* Public */,
@@ -102,8 +101,8 @@ static const uint qt_meta_data_Controller[] = {
     QMetaType::Void, QMetaType::QStringList, QMetaType::QStringList, QMetaType::QStringList,    8,    9,   10,
     QMetaType::Void, QMetaType::QStringList,   12,
     QMetaType::Void, QMetaType::QStringList,   12,
-    QMetaType::Void, QMetaType::Bool,   15,
-    QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::QString,   17,   18,   19,
+    QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::QString,   15,   16,   17,
+    QMetaType::Void, QMetaType::Bool,   19,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,   21,
@@ -124,8 +123,8 @@ void Controller::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 3: _t->signalFlushAutoCheckCmd((*reinterpret_cast< QStringList(*)>(_a[1])),(*reinterpret_cast< QStringList(*)>(_a[2])),(*reinterpret_cast< QStringList(*)>(_a[3]))); break;
         case 4: _t->signalSendControlCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
         case 5: _t->signalSendCheckCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
-        case 6: _t->signalLightPowerOn((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 7: _t->signalWrite2Kafka((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 6: _t->signalWrite2Kafka((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 7: _t->signalLightPowerOn((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 8: _t->slotLightIsOff((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 9: _t->slotWrite2Kafka(); break;
         default: ;
@@ -175,15 +174,15 @@ void Controller::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
             }
         }
         {
-            using _t = void (Controller::*)(bool );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Controller::signalLightPowerOn)) {
+            using _t = void (Controller::*)(QString , QString , QString );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Controller::signalWrite2Kafka)) {
                 *result = 6;
                 return;
             }
         }
         {
-            using _t = void (Controller::*)(QString , QString , QString );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Controller::signalWrite2Kafka)) {
+            using _t = void (Controller::*)(bool );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Controller::signalLightPowerOn)) {
                 *result = 7;
                 return;
             }
@@ -272,16 +271,16 @@ void Controller::signalSendCheckCmd(QStringList _t1)
 }
 
 // SIGNAL 6
-void Controller::signalLightPowerOn(bool _t1)
+void Controller::signalWrite2Kafka(QString _t1, QString _t2, QString _t3)
 {
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t3))) };
     QMetaObject::activate(this, &staticMetaObject, 6, _a);
 }
 
 // SIGNAL 7
-void Controller::signalWrite2Kafka(QString _t1, QString _t2, QString _t3)
+void Controller::signalLightPowerOn(bool _t1)
 {
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t3))) };
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 7, _a);
 }
 QT_WARNING_POP
