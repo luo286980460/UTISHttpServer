@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QJsonObject>
 #include "include/libhv/HttpServer.h"
 
 class Controller;

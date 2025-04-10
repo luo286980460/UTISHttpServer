@@ -905,6 +905,15 @@ debug/main.o: ../../main.cpp D:/Qt/5.15.2/mingw81_64/include/QtCore/QCoreApplica
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMutex \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDateTime \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatetime.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QSharedMemory \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedmemory.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QLocalServer \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qlocalserver.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtnetworkglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qtnetwork-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qabstractsocket.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QLocalSocket \
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qlocalsocket.h \
 		../../mainclass.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QJsonObject \

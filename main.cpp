@@ -4,7 +4,16 @@
 #include <QMutex>
 #include <QDateTime>
 
+#include <QSharedMemory>
+#include <QLocalServer>
+#include <QLocalSocket>
+
 #include "mainclass.h"
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 
 // 全局文件对象和互斥锁（确保多线程安全）
 static QFile s_logFile;
@@ -14,6 +23,24 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 
 int main(int argc, char *argv[])
 {
+    // 隐藏控制台窗口
+    #ifdef Q_OS_WIN
+        FreeConsole(); // 隐藏控制台窗口
+    #endif
+
+    // 防止程序多次启动
+        // 尝试创建共享内存段
+        QSharedMemory sharedMem("MyAppLock");
+        if (sharedMem.attach()) {
+            // 已存在实例，退出
+            return 0;
+        }
+        sharedMem.create(1);
+
+        // // 启动本地服务器监听新实例请求
+        // QLocalServer server;
+        // server.listen("MyAppServer");
+
     QCoreApplication a(argc, argv);
 
     // 安装自定义消息处理函数

@@ -30,6 +30,7 @@ public:
     void stop();
 
     QJsonObject getKafkaJson();                         // 获取上传kafka的json数据
+    QString getTopic();
     QString getControllerIpPort();                      // 获取控制器 Ip:Port
     void setControllerIpPort(QString ControllerIpPort); // 设置控制器 Ip:Port
     void addLights(QStringList lightIds);               // 添加灯
@@ -39,6 +40,8 @@ public:
     int getControllPort();
     void sendControlCmd(QStringList& cmdList, QJsonObject& json);     // 发送控制命令
     void sendCheckCmd(int& checkMode, QStringList& idList);           // 发送查询命令
+    void sendControlCmdBroadcast(QStringList& cmdList, QJsonObject& json);          // 发送广播命令
+    void sendControlCmdBroadcastNot(QStringList& cmdList, QJsonObject& json);       // 发送非广播命令
     s_light* getLightFromLightId(int lightId);
 
 private:
@@ -52,7 +55,7 @@ signals:
     void signalSendControlCmd(QStringList cmdList);     // 发送控制命令
     void signalSendCheckCmd(QStringList cmdList);       // 发送查询命令
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
-    void signalLightPowerOn(bool on);       // 电源开关
+    void signalLightPowerOn(bool on);                   // 电源开关
 
 public slots:
     void slotLightIsOff(int lightId);
@@ -74,7 +77,7 @@ private:
     QVector<s_light*> m_lights;             // 灯实例列表
     QJsonObject m_kafkaJson;                // 上传kafka的json
     QString m_topic;                        // 需要上传的kafka的主题
-    QString m_kafkaKey = "light";           // 需要上传的kafka的主题
+    QString m_kafkaKey = "light";           // 需要上传的kafka的key
 };
 
 #endif // CONTROLLER_H

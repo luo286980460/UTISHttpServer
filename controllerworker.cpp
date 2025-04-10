@@ -151,11 +151,14 @@ void ControllerWorker::sendCmd2Controller()
     if(m_tcpSocket && m_tcpSocket->state() == QAbstractSocket::ConnectedState){
         //qDebug() << m_tcpSocket->state();
         while(!m_cmdList.isEmpty()){
+            QString str = m_cmdList.first().toUpper();
+
             // 将闪烁 和 亮度 和 颜色 命令发送，并休眠 1s
             if(    m_cmdList.first().toUpper().contains("FF 66 FF")
                 || m_cmdList.first().toUpper().contains("FF 77 FF")
                 || m_cmdList.first().toUpper().contains("FF 88 FF")
-                || m_cmdList.first().toUpper().contains("FF 40 FF")  )
+                || m_cmdList.first().toUpper().contains("FF 40 FF")
+                || m_cmdList.first().toUpper().contains("FF 08 FF")  )
             {
 
                 m_tcpSocket->write(QByteArray::fromHex(m_cmdList.first().toLatin1()));

@@ -542,6 +542,12 @@ QJsonObject MyHttpServer::parseLightBroadcast(QJsonObject &json)
     int port = ControllerIpPort.split(":").at(1).toInt();   // 控制器 port
     Controller* controller = getControllerFromIpPort(ip, port); // 控制器
 
+    if(!controller) {
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "控制器：" + ControllerIpPort + "不在线";
+        return backJson;
+    }
+
     QString cmdStr; // 发送给雾灯的命令
     // 如果需要改文字 内容
     if(json.find("Content") != json.end()) {
@@ -673,14 +679,47 @@ QJsonObject MyHttpServer::parseLightBroadcast(QJsonObject &json)
         }
     }
 
+
+    // 需要更改轨迹模式
+    if( json.find("PathTracking") != json.end()){
+        if(!json.find("PathTracking")->isDouble()){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "PathTracking 数据类型错误 应该为 int";
+            return backJson;
+        }
+
+        int PathTracking = json.value("PathTracking").toInt();
+        if(PathTracking != 0 && PathTracking != 1 && PathTracking != 2 ){
+            backJson.find("code").value() = 1;
+            backJson.find("msg").value() = "PathTracking 值只能为 0 - 2 整数";
+            return backJson;
+        }
+
+        // QJsonObject jsonObj;
+        // QStringList cmdList;
+
+        switch(PathTracking){
+        case 0:     // 0 - 关闭
+            sendDataList.insert(0, QString(CMD_PATH_TRACKING_OFF).arg("FF"));
+            break;
+        case 1:     // 1 - 模式1
+            sendDataList.insert(0, QString(CMD_PATH_TRACKING_ON_1).arg("FF"));
+            break;
+        case 2:     // 2 - 模式2
+            sendDataList.insert(0, QString(CMD_PATH_TRACKING_ON_2).arg("FF"));
+            break;
+        default:
+            break;
+        }
+    }
+
     if(!controllerIsUseful(controller, ControllerIpPort, backJson)){
         return backJson;
     }
 
-
-    qDebug() << " sendDataList " << sendDataList;
     // 发送命令
-    controller->signalSendControlCmd(sendDataList);
+    controller->sendControlCmdBroadcast(sendDataList, json);
+
     return backJson;
 }
 
@@ -830,7 +869,8 @@ QJsonObject MyHttpServer::parseLightBroadcastNot(QJsonObject &json)
 
     // 打开电源
     emit controller->signalLightPowerOn(true);
-    controller->signalSendControlCmd(sendDataList);
+    // controller->signalSendControlCmd(sendDataList);
+    controller->sendControlCmdBroadcastNot(sendDataList, json);
 
     return backJson;
 }

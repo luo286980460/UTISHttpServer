@@ -80,6 +80,11 @@ QJsonObject Controller::getKafkaJson()
     return m_kafkaJson;
 }
 
+QString Controller::getTopic()
+{
+    return m_topic;
+}
+
 QString Controller::getControllerIpPort()
 {
     return m_ControllerIpPort;
@@ -242,6 +247,93 @@ void Controller::sendCheckCmd(int& checkMode, QStringList& idList)
         emit signalSendCheckCmd(cmdList0);
         break;
     }
+}
+
+void Controller::sendControlCmdBroadcast(QStringList &cmdList, QJsonObject &json)
+{
+    if(json.find("ControllerIpPort") != json.end()){
+        m_ControllerIpPort = json.value("ControllerIpPort").toString();     // 控制器 ip:port
+    }
+
+    if(json.find("PathTracking") != json.end()){
+        m_PathTracking = json.value("PathTracking").toInt();     // 控制器 ip:port
+    }
+
+
+    if(json.find("Content") != json.end()){
+        m_Content = json.value("Content").toString();                       // 控制器 全部显示内容
+
+        // 如果是广播，更新所有light里面的content
+        if(json.find("Broadcast") != json.end() && json.value("Broadcast").toInt() == 1){
+            for(int i=0; i<m_lights.size(); i++){
+                m_lights.at(i)->Content = m_Content;
+            }
+        }else if(json.find("Broadcast") != json.end() && json.value("Broadcast").toInt() == 0){
+            for(int i=0; i<m_lights.size(); i++){
+                if(i < m_Content.size()){
+                    m_lights.at(i)->Content = m_Content.at(i);
+                }
+
+            }
+        }
+
+        if(json.find("FontColor") != json.end()){
+            for(int i=0; i<m_lights.size(); i++){
+                m_lights.at(i)->FontColor = json.value("FontColor").toInt();
+            }
+        }
+    }
+
+    if(json.find("DeviceId") != json.end()){
+        m_DeviceId = json.value("DeviceId").toString();                     // 控制器 设备编号
+    }
+
+    if(json.find("Luminance") != json.end()){
+        m_Luminance = json.value("Luminance").toInt();                      // 控制器 亮度
+    }
+
+    if(json.find("Flicker") != json.end()){
+        m_Flicker =  json.value("Flicker").toArray();                       // 控制器 闪烁（size == 0时，为不闪烁
+    }
+
+    if(json.find("PathTracking") != json.end()){
+        m_PathTracking = json.value("PathTracking").toInt();                // 控制器 轨迹模式（0-关闭 1-模式1 2-模式2）
+    }
+
+    if(json.find("pathTrackingTime") != json.end()){
+        m_PathTrackingTime = json.value("pathTrackingTime").toInt();         // 控制器 轨迹延时（1-20s）
+    }
+
+    if(json.find("Version") != json.end()){
+        m_Version = json.value("Version").toInt();                          // 控制器 灯版本
+    }
+
+    emit signalSendControlCmd(cmdList);
+    slotWrite2Kafka();
+}
+
+void Controller::sendControlCmdBroadcastNot(QStringList &cmdList, QJsonObject &json)
+{
+    if(json.find("ControllerIpPort") != json.end()){
+        m_ControllerIpPort = json.value("ControllerIpPort").toString();     // 控制器 ip:port
+    }
+    if(json.find("DeviceId") != json.end()){
+        m_DeviceId = json.value("DeviceId").toString();                     // 控制器 设备编号
+    }
+
+    QJsonArray lightArray = json.find("Lights")->toArray();
+
+    for(int i=0; i<m_lights.size(); i++){
+        int LightId = m_lights.at(i)->LightId;
+        foreach(QJsonValue value, lightArray){
+            if(LightId == value.toObject().find("LightId")->toInt()){
+                m_lights.at(i)->Content = value.toObject().find("Content")->toString();
+            }
+        }
+    }
+
+    emit signalSendControlCmd(cmdList);
+    slotWrite2Kafka();
 }
 
 s_light *Controller::getLightFromLightId(int lightId)
