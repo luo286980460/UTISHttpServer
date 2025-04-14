@@ -7,6 +7,7 @@ CONFIG += release
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        connecttoserver.cpp \
         controller.cpp \
         controllerworker.cpp \
         main.cpp \
@@ -21,6 +22,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    connecttoserver.h \
     controller.h \
     controllerworker.h \
     lightCmdList.h \

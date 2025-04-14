@@ -19,19 +19,20 @@ MainClass::MainClass(QObject *parent)
 
 void MainClass::init()
 {
-    if(!initCfgJson()) return;
+    if(!initCfgJson()) return;  // 先读取配置， 往下的函数会使用配置信息
+
     if(!initProducer()) return;
     if(!initControlls()) return;
     if(!initHttpserver()) return;
+    // if(!initTcpClient()) return;
 
-    // 连接信号
-    // conn
 }
 
 bool MainClass::initCfgJson()
 {
     // CFG_JSON配置文件是否存在
     QString iniPath = QCoreApplication::applicationDirPath() + CFG_JSON;
+
     if(!QFileInfo::exists(iniPath)){
         qCritical() << ("****** cfg.json 配置文件丢失 ******");
         return false;
@@ -47,9 +48,9 @@ bool MainClass::initCfgJson()
     // 读取配置文件
     QJsonParseError error;
     m_cfgJson = QJsonDocument::fromJson(file.readAll(), &error)
-                    .object()
-                    .value("utisDeviceServer")
-                    .toObject();
+                    .object();
+                    // .value("utisDeviceServer")
+                    // .toObject();
 
     if(error.error != QJsonParseError::NoError){
         qCritical() << "error cfgJson: " + error.errorString();
@@ -57,17 +58,18 @@ bool MainClass::initCfgJson()
     }
 
     // 子参数 light/kafka 是否为json
-    if(!m_cfgJson.value("light").isObject() || !m_cfgJson.value("kafka").isObject()){
-        qCritical() << "light/kafka not a json";
-        return false;
-    }
+    // if(!m_cfgJson.value("light").isObject() || !m_cfgJson.value("kafka").isObject()){
+    //     qCritical() << "light/kafka not a json";
+    //     return false;
+    // }
 
     return true;
 }
 
 bool MainClass::initHttpserver()
 {
-    int port = m_cfgJson.value("port").toInt();
+    // int port = m_cfgJson.value("port").toInt();
+    int port = m_cfgJson.value("serverPort").toString().toInt();
 
     if(port < 1) {
         qCritical() << " error UtisDeviceServer Port = " + QString::number(port);
@@ -75,7 +77,9 @@ bool MainClass::initHttpserver()
     }
 
     m_myHttpServer = new MyHttpServer(port, this);
+    m_myHttpServer->setCfgJson(m_cfgJson);
     connect(m_myHttpServer, &MyHttpServer::signalWrite2Kafka, this, &MainClass::slotWrite2Kafka);
+    connect(m_myHttpServer, &MyHttpServer::signalSetCfgJson, this, &MainClass::slotSetCfgJson);
 
 
     m_myHttpServer->updateControllList(&m_controllList);
@@ -85,42 +89,38 @@ bool MainClass::initHttpserver()
 bool MainClass::initProducer()
 {
     producer* producerTmp = nullptr;
-    QJsonObject kafkaCfgObj = m_cfgJson.value("kafka").toObject();
-    QString kafkaIp = kafkaCfgObj.value("ip").toString();
-    QJsonArray topicList = kafkaCfgObj.value("topics").toArray();
+    QString kafkaIpPort = m_cfgJson.value("kafkaIp").toString() + ":" + m_cfgJson.value("kafkaPort").toString();
+    QStringList topicList = m_cfgJson.value("kafkaTopics").toString().split(",");
 
     for(int i=0; i<topicList.size(); i++){
-        if(!topicList.at(i).isString()){
-            qWarning() << " error kafka topic is not string";
-            return false;
-        }
-        QString strTopic = topicList.at(i).toString(); //kafka主题
+        QString strTopic = topicList.at(i); //kafka主题
         producerTmp = new producer(this);
         //connect(this, &MainClass::write2Kafka, producerTmp, &producer::slotProduceMessvoidJson);
         producerTmp->setTopic(strTopic);
-        producerTmp->setkafkaIp(kafkaIp);
+        producerTmp->setkafkaIp(kafkaIpPort);
         producerTmp->start();
         producerTmp->init();
         emit producerTmp->signalInitWork();
         m_producerList.append(producerTmp);
-
         //producerTmp->signalProduceMessvoidJson("value", "key1");
     }
+
+
     return true;
 }
 
 bool MainClass::initControlls()
 {
 
-    QJsonObject lightCfgObj = m_cfgJson.value("light").toObject();
+    // QJsonObject lightCfgObj = m_cfgJson.value("light").toObject();
 
     //获取发送间隔、发送命令数量、上传kafka的主题
-    int sendingInterval = lightCfgObj.value("sendingInterval").toInt();
-    int sendingCount = lightCfgObj.value("sendingCount").toInt();
-    QString topic = lightCfgObj.value("topic").toString();
+    int sendingInterval = m_cfgJson.value("sendingInterval").toString().toInt();
+    int sendingCount = m_cfgJson.value("sendingCount").toString().toInt();
+    QString topic = m_cfgJson.value("topic").toString();
 
     // 获取控制器
-    QJsonArray controllers = lightCfgObj.value("controllers").toArray();
+    QJsonArray controllers = m_cfgJson.value("controllers").toArray();
 
     for(int i=0; i<controllers.size(); i++){
         QJsonObject controllJson =          // 控制器配置信息
@@ -129,15 +129,44 @@ bool MainClass::initControlls()
         QString ip =                        // 控制器 IP
             controllJson.value("ip").toString();
         int port =                          // 控制器 port
-            controllJson.value("port").toInt();
+            controllJson.value("port").toString().toInt();
         QString ConnectType =               // 控制器 连接方式
             controllJson.value("connectType").toString().toUpper();
-        QJsonArray LightArray =             // 灯id列表
-            controllJson.value("lightId").toArray();
-        QStringList LightId;                // 灯id列表connectType
+        QString LightListStr =             // 灯id列表  替换 半角 ;   去除 空格
+            controllJson.value("lightId").toString().replace(" ", "").replace("；", ";");
+        QStringList LightStrId = LightListStr.split(";", Qt::SkipEmptyParts);
 
-        for(int i=0; i<LightArray.size(); i++){
-            LightId << QString::number(LightArray.at(i).toInt());
+
+        QStringList LightId;
+        foreach(QString str, LightStrId){
+            QStringList list = str.split("-", Qt::SkipEmptyParts);
+            int smallNumbers;
+            int bigNumbers;
+
+            if(list.size() == 1){
+                smallNumbers = list.at(0).toInt();
+
+                if(smallNumbers < 1 || smallNumbers > 254){
+                    return false;
+                }
+
+                LightId << QString::number(smallNumbers);
+            }else if(list.size() == 2){
+                smallNumbers = list.at(0).toInt();
+                bigNumbers = list.at(1).toInt();
+
+
+
+                if(smallNumbers < 1 || bigNumbers > 254 || smallNumbers >= bigNumbers){
+                    return false;
+                }
+
+                for(int i=smallNumbers; i<=bigNumbers; i++){
+                    LightId << QString::number(i);
+                }
+            }else{
+                return false;
+            }
         }
 
         //创建控制器,并插入控制器列表
@@ -155,6 +184,20 @@ bool MainClass::initControlls()
     return true;
 }
 
+// bool MainClass::initTcpClient()
+// {
+//     QJsonObject webCfgJson = m_cfgJson.value("web").toObject();
+//     QString ip = webCfgJson.value("ip").toString();
+//     int port = webCfgJson.value("port").toInt();
+
+//     m_tcpClient = new QTcpSocket;
+//     m_tcpClient->connectToHost(ip, port);
+//     connect(m_tcpClient, &QTcpSocket::connected, this, [this](){
+//         qDebug() <<  "m_tcpClient连接成功";
+//     });
+//     return true;
+// }
+
 void MainClass::slotWrite2Kafka(QString topic, QString strJson, QString strKey)
 {
     producer* producer_ = nullptr;
@@ -169,4 +212,31 @@ void MainClass::slotWrite2Kafka(QString topic, QString strJson, QString strKey)
     if(producer_){
         emit producer_->signalProduceMessvoidJson(strJson, strKey);
     }
+}
+
+void MainClass::slotSetCfgJson(QByteArray cfgJson)
+{
+    // qDebug() << m_cfgJson;
+    // qDebug() << QJsonDocument::fromJson(cfgJson).toJson();
+
+    QJsonObject newCfgJson = QJsonDocument::fromJson(cfgJson).object();
+    //qDebug() << newCfgJson.value("deviceStatenh_deviceState")
+    QString iniPath = QCoreApplication::applicationDirPath() + CFG_JSON;
+
+
+
+    // if(!QFileInfo::exists(iniPath)){
+    //     qCritical() << ("****** cfg.json 配置文件丢失 ******");
+    // }
+
+    // 打开配置文件
+    QFile file(iniPath);
+    if(!file.open(QIODevice::WriteOnly)){
+        qCritical() << ("****** " + iniPath + " 配置文件打开失败 ******");
+    }
+
+    // 写入配置文件
+    file.write(cfgJson);
+
+
 }

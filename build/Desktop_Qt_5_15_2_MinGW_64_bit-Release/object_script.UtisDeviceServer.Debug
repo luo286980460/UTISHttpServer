@@ -1,3 +1,4 @@
+debug/connecttoserver.o
 debug/controller.o
 debug/controllerworker.o
 debug/main.o
@@ -5,6 +6,7 @@ debug/mainclass.o
 debug/myhttpserver.o
 debug/producer.o
 debug/producerworker.o
+debug/moc_connecttoserver.o
 debug/moc_controller.o
 debug/moc_controllerworker.o
 debug/moc_mainclass.o

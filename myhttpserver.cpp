@@ -2,6 +2,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTextCodec>
+#include <QFile>
+#include <QCoreApplication>
+#include <QDir>
+#include <QProcess>
 
 #include "myhttpserver.h"
 #include "controller.h"
@@ -9,7 +13,10 @@
 #include "include/libhv/hasync.h"     // import hv::async
 #include "lightCmdList.h"
 
-using namespace hv;
+#define LOGIN_PATH "/src/dist/index.html"
+#define SRC_PATH "/src/dist"
+#define ACCOUNT_INFO_PATH "/aip.ls"
+
 
 MyHttpServer::MyHttpServer(int port, QObject *parent)
     : QObject(parent)
@@ -25,6 +32,11 @@ MyHttpServer::~MyHttpServer()
 void MyHttpServer::updateControllList(QList<Controller *> * controllList)
 {
     m_controllList = controllList;
+}
+
+void MyHttpServer::setCfgJson(QJsonObject &cfgJson)
+{
+    m_cfgJson = cfgJson;
 }
 
 void MyHttpServer::createHttpserver(int port)
@@ -46,6 +58,137 @@ void MyHttpServer::createHttpserver(int port)
     // curl -v http://ip:port/httpbin/get
     m_router->Proxy("/httpbin/", "http://httpbin.org/");
 
+
+    // 首页 login.html  /UtisWebCfgServer
+    m_router->GET("/", [](HttpRequest* req, HttpResponse* resp) {
+
+        QString path = QCoreApplication::applicationDirPath() + LOGIN_PATH;
+
+        return resp->File(path.toStdString().c_str());
+    });
+
+
+    // login
+    m_router->POST("/login", [this](HttpRequest* req, HttpResponse* resp) {
+
+        // const char* Token;  = "session_id=Y3VybF91c2VyOjEyMw==; Max-Age=7200; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Lax";
+        //  resp->SetHeader("Set-Cookie", Token);
+
+        QJsonObject backJson;
+        backJson.insert("token", "");
+        backJson.insert("code", 200);
+        backJson.insert("msg", "ok");
+
+        QString body = QString::fromStdString(req->body);
+        QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+
+        if("application/json" != contentType){
+            backJson["code"] = 400;
+            backJson["msg"] = "非法请求头";
+
+
+            resp->content_type = APPLICATION_JSON;
+            resp->body = QJsonDocument(backJson).toJson().toStdString();
+            return 200;
+
+            //return resp->String(QJsonDocument(backJson).toJson().toStdString());
+        }
+
+        // 获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        QString username = jsonObj.value("username").toString();
+        QString password =  jsonObj.value("password").toString();
+        QString token;
+
+
+        //  使用数据库保存账号密码的模块
+        // 验证账号密码
+        // if(!m_myDataBase->useramePwdIsOK(username, password, backJson)){
+        //     return resp->String(QJsonDocument(backJson).toJson().toStdString());
+        // }
+
+        // // 生成token并更新
+        // token = generateToken(username, password);
+        // if(!m_myDataBase->updataToken(username, token, backJson)){
+        //     resp->content_type = TEXT_PLAIN;
+        //     resp->body = QJsonDocument(backJson).toJson().toStdString();
+        //     return 400;
+
+        //     //return resp->String(QJsonDocument(backJson).toJson().toStdString());
+        // }
+        // backJson["token"] = token;
+
+        // // 获取设备数据
+        // QJsonArray deviceArray;
+        // if(!m_myDataBase->getDeviceData(username, deviceArray, backJson)){
+
+        //     resp->content_type = TEXT_PLAIN;
+        //     resp->body = QJsonDocument(backJson).toJson().toStdString();
+        //     return 400;
+        //     // return resp->String(QJsonDocument(backJson).toJson().toStdString());
+        // }
+
+        // backJson.insert("devices", deviceArray);
+        // m_myDataBase->closeDataBase(); // 关闭连接
+
+        // return resp->String(QJsonDocument(backJson).toJson().toStdString());
+
+
+
+        // 使用文件保存账号密码的模块
+        QString accountInfoFilePath = QCoreApplication::applicationDirPath() + ACCOUNT_INFO_PATH;
+        QFile accountInfoFile(accountInfoFilePath);
+
+        if(!accountInfoFile.open(QIODevice::ReadOnly)){
+            backJson["code"] = 400;
+            backJson["msg"] = "account cfg missing";
+
+            resp->content_type = APPLICATION_JSON;
+            resp->body = QJsonDocument(backJson).toJson().toStdString();
+            return 200;
+        }
+
+        bool isOk = false;
+        QString lineData = accountInfoFile.readLine();
+
+        while(!lineData.isEmpty()){
+            QList usrPwdList = lineData.split(":");
+            if(usrPwdList.size() != 2){
+                lineData = accountInfoFile.readLine();
+                continue;
+            }
+            QString usr = usrPwdList.at(0).trimmed();
+            QString pwd = usrPwdList.at(1).trimmed();
+
+            if(username == usr && password == pwd){
+                isOk = true;
+                break;
+            }
+
+            lineData = accountInfoFile.readLine();
+        }
+
+        if(!isOk){
+            backJson["code"] = 400;
+            backJson["msg"] = "用户或者密码错误";
+
+            resp->content_type = APPLICATION_JSON;
+            resp->body = QJsonDocument(backJson).toJson().toStdString();
+            return 200;
+        }
+
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+        backJson["token"] = "1";
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        return 200;
+
+    });
+
+
     // 警示灯
     // 广播控灯
     m_router->POST("/light/Broadcast", [this](HttpRequest* req, HttpResponse* resp) {
@@ -64,10 +207,44 @@ void MyHttpServer::createHttpserver(int port)
 
         return resp->String(QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString());
     });
+    m_router->POST("/jingShiDeng/Broadcast", [this](HttpRequest* req, HttpResponse* resp) {
+
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString().c_str();
+        return 200;
+
+        // return resp->String(QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString());
+    });
 
 
     // 非广播控灯
     m_router->POST("/light/BroadcastNot", [this](HttpRequest* req, HttpResponse* resp) {
+
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
+        return resp->String(QJsonDocument(parseLightBroadcastNot(jsonObj)).toJson().toStdString());
+    });
+    m_router->POST("/jingShiDeng/BroadcastNot", [this](HttpRequest* req, HttpResponse* resp) {
 
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
@@ -99,6 +276,21 @@ void MyHttpServer::createHttpserver(int port)
 
         return resp->String(QJsonDocument(parseLightPathTracking(jsonObj)).toJson().toStdString());
     });
+    m_router->POST("/jingShiDeng/PathTracking", [this](HttpRequest* req, HttpResponse* resp) {
+
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
+        return resp->String(QJsonDocument(parseLightPathTracking(jsonObj)).toJson().toStdString());
+    });
 
     // 雾灯状态更新
     m_router->POST("/light/UpdateLightState", [this](HttpRequest* req, HttpResponse* resp) {
@@ -116,7 +308,120 @@ void MyHttpServer::createHttpserver(int port)
 
         return resp->String(QJsonDocument(parseUpdateLightState(jsonObj)).toJson().toStdString());
     });
+    m_router->POST("/jingShiDeng/UpdateLightState", [this](HttpRequest* req, HttpResponse* resp) {
 
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+            QJsonObject jsonBack;
+            jsonBack.insert("code", 1);
+            jsonBack.insert("msg", "Content-Type must be application/json");
+            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        }
+
+        return resp->String(QJsonDocument(parseUpdateLightState(jsonObj)).toJson().toStdString());
+    });
+
+
+    // 重启警示灯服务
+    m_router->GET("/jingShiDeng/restart", [this](HttpRequest* req, HttpResponse* resp) {
+        Q_UNUSED(req);
+
+
+        QJsonObject backJson;
+        backJson.insert("code", 200);
+        backJson.insert("msg", "ok");
+
+        restartApplication();
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QJsonDocument(backJson).toJson().toStdString();
+        return 200;
+    });
+
+    // 拉取警示灯配置信息
+    m_router->GET("/jingShiDeng/getCfgInfo", [this](HttpRequest* req, HttpResponse* resp) {
+
+        Q_UNUSED(req);
+        // QJsonObject cfgJson;
+        // QJsonArray lights;
+        // QJsonObject light1;
+        // QJsonObject light2;
+
+        // cfgJson.insert("serverPort", "2333");
+        // cfgJson.insert("sendingInterval", "9999");
+        // cfgJson.insert("sendingCount", "10");
+        // cfgJson.insert("topic", "deviceState");
+        // cfgJson.insert("kafkaIp", "58.240.67.138");
+        // cfgJson.insert("kafkaPort", "18543");
+        // cfgJson.insert("kafkaTopics", "deviceState,nh_deviceState");
+
+        // light1.insert("name", "控制器1");
+        // light1.insert("ipPort", "192.168.1.101:8886");
+        // light1.insert("lightId", "1-4");
+        // light1.insert("quanXiId", "QuanXiId1, QuanXiId2, QuanXiId3, QuanXiId4");
+        // light1.insert("connectType", "tcp");
+
+
+
+        // light2.insert("name", "控制器2");
+        // light2.insert("ipPort", "192.168.1.101:8886");
+        // light2.insert("lightId", "2-8");
+        // light2.insert("quanXiId", "QuanXiId1, QuanXiId2, QuanXiId3, QuanXiId4");
+        // light2.insert("connectType", "udp");
+
+
+        // lights << light1 << light2;
+        // cfgJson.insert("controllers", lights);
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QString(QJsonDocument(m_cfgJson).toJson()).toUtf8().toStdString();
+
+        return 200;
+
+    });
+
+    // 提交警示灯配置信息
+    m_router->POST("/jingShiDeng/setCfgInfo", [this](HttpRequest* req, HttpResponse* resp) {
+
+        // const char* Token;  = "session_id=Y3VybF91c2VyOjEyMw==; Max-Age=7200; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Lax";
+        //  resp->SetHeader("Set-Cookie", Token);
+
+
+        QJsonObject backJson;
+        backJson.insert("code", 200);
+        backJson.insert("msg", "ok");
+
+
+
+        // QString body = QString::fromStdString(req->body);
+        // //QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+        // qDebug() << body;
+
+
+        // // QString body = QString::fromStdString(req->body);
+        // // QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+        // // if("application/json" != contentType){
+        // //     backJson["code"] = 400;
+        // //     backJson["msg"] = "非法请求头";
+
+
+        // //     resp->content_type = APPLICATION_JSON;
+        // //     resp->body = QJsonDocument(backJson).toJson().toStdString();
+        // //     return 200;
+        // // }
+
+        qDebug() << req->body.c_str();
+
+        emit signalSetCfgJson(req->body.c_str());
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        //resp->body = req->Body();
+        return 200;
+    });
 
     // 旧版控灯协议 2.0
     m_router->POST("/light", [this](HttpRequest* req, HttpResponse* resp) {
@@ -130,7 +435,34 @@ void MyHttpServer::createHttpserver(int port)
         return resp->String(QJsonDocument(parseLightJson(jsonObj)).toJson().toStdString());
     });
 
+    // 提交安全桩配置信息
+    m_router->POST("/anQuanZhuang/updateCfgInfo", [](HttpRequest* req, HttpResponse* resp) {
 
+        // const char* Token;  = "session_id=Y3VybF91c2VyOjEyMw==; Max-Age=7200; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Lax";
+        //  resp->SetHeader("Set-Cookie", Token);
+
+        QJsonObject backJson;
+        backJson.insert("code", 200);
+        backJson.insert("msg", "ok");
+
+        QString body = QString::fromStdString(req->body);
+        QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+        if("application/json" != contentType){
+            backJson["code"] = 400;
+            backJson["msg"] = "非法请求头";
+
+
+            resp->content_type = APPLICATION_JSON;
+            resp->body = QJsonDocument(backJson).toJson().toStdString();
+            return 200;
+        }
+
+        qDebug() << body;
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        return 200;
+    });
 
 
     /*          POST            */
@@ -145,10 +477,10 @@ void MyHttpServer::createHttpserver(int port)
     m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 =  {
-            {"time", "最后更新时间：2025年02月24日"},
-            {"Name", "尤特斯设备服务"},
-            {"Version", "0.5"},
-            {"Msg", "支持警示灯新版，有kafka，此版本还在测试中，后续可能修改功能以及协议"}
+            {"time", "最后更新时间：2025年04月14日"},
+            {"Name", "尤特斯警示灯服务"},
+            {"Version", "0.7"},
+            {"Msg", "新增web功能，支持修改配置和调试"}
         };
         return resp->Json(ex3);
         //return resp->String("connected............");
@@ -187,7 +519,14 @@ void MyHttpServer::createHttpserver(int port)
         writer->End();
     });
 
+    // web 模块
+
+
     m_httpServer = new HttpServer;
+
+
+    add_directory_handlers(*m_httpServer, QCoreApplication::applicationDirPath() + SRC_PATH);
+
     m_httpServer->service = m_router;
     m_httpServer->port = port;
 
@@ -527,7 +866,7 @@ QJsonObject MyHttpServer::parseLightBroadcast(QJsonObject &json)
 {
 
     QJsonObject backJson;
-    backJson.insert("code", 0);
+    backJson.insert("code", 200);
     backJson.insert("msg", "成功");
 
     //如果必要参数不存在，或者不合理，直接返回
@@ -836,7 +1175,7 @@ bool MyHttpServer::missingParameterBroadcastNot(QJsonObject &json, QJsonObject &
 QJsonObject MyHttpServer::parseLightBroadcastNot(QJsonObject &json)
 {
     QJsonObject backJson;
-    backJson.insert("code", 0);
+    backJson.insert("code", 200);
     backJson.insert("msg", "成功");
 
 
@@ -911,7 +1250,7 @@ bool MyHttpServer::ipPortIsOK(QString ipPort)
 QJsonObject MyHttpServer::parseLightJson(QJsonObject &json)
 {
     QJsonObject backJson;
-    backJson.insert("code", 0);
+    backJson.insert("code", 200);
     backJson.insert("msg", "成功");
 
     //如果必要参数不存在，或者不合理，直接返回
@@ -1140,6 +1479,39 @@ QJsonObject MyHttpServer::parseLightJson(QJsonObject &json)
     return backJson;
 }
 
+void MyHttpServer::add_file_handler(HttpServer &server, const QString &basepath, const QString &path)
+{
+    QString filepath = basepath + "/" + path;
+    QFileInfo fileInfo(filepath);
+    if (fileInfo.isFile()) {
+        m_router->GET(("/"+path).toStdString().c_str(), [filepath](HttpRequest* req, HttpResponse* resp) {
+
+            return resp->File(filepath.toStdString().c_str());
+        });
+    }
+}
+
+void MyHttpServer::add_directory_handlers(HttpServer &server, const QString &basepath, const QString &path)
+{
+    QDir dir(basepath + "/" + path);
+    if (dir.exists()) {
+        for (const QString& entry : dir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries)) {
+            QString subpath = path.isEmpty() ? entry : path + "/" + entry;
+            if (QFileInfo(dir, entry).isDir()) {
+                add_directory_handlers(server, basepath, subpath);
+            } else {
+                add_file_handler(server, basepath, subpath);
+            }
+        }
+    }
+}
+
+void MyHttpServer::restartApplication()
+{
+    QProcess::startDetached(QCoreApplication::applicationFilePath());
+    QCoreApplication::exit();
+}
+
 bool MyHttpServer::controllerIsUseful(Controller *controller, QString TermIp, QJsonObject &backJson)
 {
     // 判断该 ip 控制器是否在线
@@ -1182,7 +1554,7 @@ Controller *MyHttpServer::getControllerFromIpPort(QString ip, int Port)
 QJsonObject MyHttpServer::parseUpdateLightState(QJsonObject &json)
 {
     QJsonObject backJson;
-    backJson.insert("code", 0);
+    backJson.insert("code", 200);
     backJson.insert("msg", "成功");
 
     QJsonArray ControllerList = json.value("Controllers").toArray();
@@ -1293,7 +1665,7 @@ QJsonObject MyHttpServer::parseUpdateLightState(QJsonObject &json)
 QJsonObject MyHttpServer::parseLightPathTracking(QJsonObject &json)
 {
     QJsonObject backJson;
-    backJson.insert("code", 0);
+    backJson.insert("code", 200);
     backJson.insert("msg", "成功");
 
     //如果必要参数不存在，或者不合理，直接返回

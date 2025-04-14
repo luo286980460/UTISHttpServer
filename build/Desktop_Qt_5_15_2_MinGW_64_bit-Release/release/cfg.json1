@@ -1,0 +1,27 @@
+{
+	"utisDeviceServer":{
+		"port":2333,
+		"light":{
+			"sendingInterval":1000,
+			"sendingCount":10,
+			"topic":"nh_deviceState",
+			"controllers":[
+				{
+					"ip":"192.168.1.101",
+					"port":8886,
+					"lightId":[11, 12, 13, 254],
+					"quanXiId":["QuanXiId1", "QuanXiId2", "QuanXiId3", "QuanXiId4"],
+					"connectType":"tcp"
+				}
+			]
+		},
+		"kafka":{
+			"ip":"58.240.67.138:18543",
+			"topics":["nh_deviceState"]
+		},
+		"web":{
+			"ip":"127.0.0.1",
+			"port":8848
+		}
+	}
+}

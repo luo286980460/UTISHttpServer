@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include "include/libhv/HttpServer.h"
 
+using namespace hv;
+
 class Controller;
 
 class MyHttpServer : public QObject
@@ -17,6 +19,7 @@ public:
     virtual ~MyHttpServer();
 
     void updateControllList(QList<Controller*>* controllList);      // 更新警示灯控制器列表
+    void setCfgJson(QJsonObject& cfgJson);
 
 private:
     void createHttpserver(int port);                // 开启httpserver
@@ -43,8 +46,16 @@ private:
     // 旧版协议
     QJsonObject parseLightJson(QJsonObject& json);          // 解析 雾灯 json数据 2.0 版本
 
+
+    void add_file_handler(HttpServer& server, const QString& basepath, const QString& path);
+    void add_directory_handlers(HttpServer& server, const QString& basepath, const QString& path = "");
+
+
+    void restartApplication();
+
 signals:
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
+    void signalSetCfgJson(QByteArray cfgJson);
 
 public slots:
 
@@ -52,6 +63,7 @@ public:
     hv::HttpServer* m_httpServer;
     HttpService* m_router;
     QList<Controller*>* m_controllList = nullptr;   // 警示灯控制器列表
+    QJsonObject m_cfgJson;
 };
 
 

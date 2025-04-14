@@ -1,0 +1,27 @@
+{
+	"serverPort":"2333",
+	"sendingInterval":"1000",
+	"sendingCount":"10",
+	"topic":"nh_deviceState",
+	"kafkaIp":"58.240.67.138",
+	"kafkaPort":"18543",
+	"kafkaTopics":"deviceState1,deviceState2",
+	"controllers":[
+		{
+			"name":"控制器1",
+			"ip":"192.168.1.101",
+			"port":"8886",
+			"lightId":"1-5;8;10-18",
+			"quanXiId":"QuanXiId1, QuanXiId2, QuanXiId3, QuanXiId4",
+			"connectType":"tcp"
+		},
+		{
+			"name":"控制器2",
+			"ip":"192.168.1.101",
+			"port":"8886",
+			"lightId":"2;5;6;2-6",
+			"quanXiId":"QuanXiId1, QuanXiId2, QuanXiId3, QuanXiId4",
+			"connectType":"tcp"
+		}
+	]
+}
