@@ -1,2 +1,1 @@
-admin:admin
-guest:guest
+e062bd5f8d3ce5c4a0b4de07c8d724118c7d06e3d0ec206767b7c311b921e2ef4541dcfe2f03f6926a6671144cf3b90f

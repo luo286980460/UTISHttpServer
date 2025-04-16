@@ -204,11 +204,22 @@ void ControllerWorker::slotInitTcp(QString ip, int port)
     m_tcpSocket->connectToHost(ip, port);
     m_tcpSocket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
 
-    if (m_tcpSocket->waitForConnected(1000))  // 连接
+
+    for (int i=0; i< 5; i++)  // 连接
     {
-        qDebug() << (QString("控制器【%1:%2】连接成功").arg(ip).arg(port));
-    }else{
-        qDebug() << (QString("控制器【%1:%2】连接失败").arg(ip).arg(port));
+        qDebug() << "i: " << i;
+        if(m_tcpSocket->waitForConnected(1000)){
+            qDebug() << (QString("控制器[%1:%2]连接成功").arg(ip).arg(port));
+            break;
+        }else{
+
+            if(i == 4){
+                qDebug() << (QString("控制器[%1:%2]连接失败, 放弃连接").arg(ip).arg(port));
+            }else{
+                qDebug() << (QString("控制器[%1:%2]连接失败，重试中...").arg(ip).arg(port));
+            }
+        }
+
     }
 
     return;

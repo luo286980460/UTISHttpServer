@@ -1,5 +1,6 @@
 ﻿#include <QCoreApplication>
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
 #include <QMutex>
 #include <QDateTime>
@@ -29,17 +30,17 @@ int main(int argc, char *argv[])
     #endif
 
     // 防止程序多次启动
-        // 尝试创建共享内存段
-        QSharedMemory sharedMem("MyAppLock");
-        if (sharedMem.attach()) {
-            // 已存在实例，退出
-            return 0;
-        }
-        sharedMem.create(1);
+    // 尝试创建共享内存段
+    // QSharedMemory sharedMem("MyAppLock");
+    // if (sharedMem.attach()) {
+    //     // 已存在实例，退出
+    //     return 0;
+    // }
+    // sharedMem.create(1);
 
-        // // 启动本地服务器监听新实例请求
-        // QLocalServer server;
-        // server.listen("MyAppServer");
+    // // 启动本地服务器监听新实例请求
+    // QLocalServer server;
+    // server.listen("MyAppServer");
 
     QCoreApplication a(argc, argv);
 
@@ -57,7 +58,15 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 
     // 打开日志文件（如果未打开）
     if (!s_logFile.isOpen()) {
-        s_logFile.setFileName("D:/QtFile/UTISHttpServer/UtisDeviceServer/log/qdebugLog.txt"); // 日志文件名
+        QString logDirPath = QCoreApplication::applicationDirPath() + "/log";
+        QString logFilePath = logDirPath + "/qdebugLog.txt";
+
+        if(!QDir(logDirPath).exists()){
+            QDir dir;
+            dir.mkpath(logDirPath);
+        }
+
+        s_logFile.setFileName(logFilePath); // 日志文件名
         s_logFile.open(QIODevice::WriteOnly | QIODevice::Append);
     }
 

@@ -31,6 +31,7 @@ public slots:
                          QString strJson,
                          QString strKey);
     void slotSetCfgJson(QByteArray cfgJson);
+    void slotRestartApplication();
 
 private:
     QJsonObject m_cfgJson;

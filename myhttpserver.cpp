@@ -5,13 +5,13 @@
 #include <QFile>
 #include <QCoreApplication>
 #include <QDir>
-#include <QProcess>
 
 #include "myhttpserver.h"
 #include "controller.h"
 #include "include/libhv/hthread.h"    // import hv_gettid
 #include "include/libhv/hasync.h"     // import hv::async
 #include "lightCmdList.h"
+#include "qaesencryption.h"
 
 #define LOGIN_PATH "/src/dist/index.html"
 #define SRC_PATH "/src/dist"
@@ -26,6 +26,7 @@ MyHttpServer::MyHttpServer(int port, QObject *parent)
 
 MyHttpServer::~MyHttpServer()
 {
+    m_httpServer->stop();
     hv::async::cleanup();
 }
 
@@ -37,6 +38,12 @@ void MyHttpServer::updateControllList(QList<Controller *> * controllList)
 void MyHttpServer::setCfgJson(QJsonObject &cfgJson)
 {
     m_cfgJson = cfgJson;
+}
+
+void MyHttpServer::stop()
+{
+    m_httpServer->stop();
+    hv::async::cleanup();
 }
 
 void MyHttpServer::createHttpserver(int port)
@@ -67,7 +74,6 @@ void MyHttpServer::createHttpserver(int port)
         return resp->File(path.toStdString().c_str());
     });
 
-
     // login
     m_router->POST("/login", [this](HttpRequest* req, HttpResponse* resp) {
 
@@ -89,6 +95,7 @@ void MyHttpServer::createHttpserver(int port)
 
             resp->content_type = APPLICATION_JSON;
             resp->body = QJsonDocument(backJson).toJson().toStdString();
+            // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson().data(), m_aesKey).toStdString();
             return 200;
 
             //return resp->String(QJsonDocument(backJson).toJson().toStdString());
@@ -147,43 +154,71 @@ void MyHttpServer::createHttpserver(int port)
 
             resp->content_type = APPLICATION_JSON;
             resp->body = QJsonDocument(backJson).toJson().toStdString();
+            //resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson().data(), m_aesKey).toStdString();
             return 200;
         }
 
         bool isOk = false;
-        QString lineData = accountInfoFile.readLine();
 
-        while(!lineData.isEmpty()){
-            QList usrPwdList = lineData.split(":");
-            if(usrPwdList.size() != 2){
-                lineData = accountInfoFile.readLine();
-                continue;
-            }
-            QString usr = usrPwdList.at(0).trimmed();
-            QString pwd = usrPwdList.at(1).trimmed();
+        //qDebug() << QJsonDocument::fromJson(decrypt_Aes128_ECB_PKCS7_HEX(QByteArray::fromHex(accountInfoFile.readAll()), m_aesKey).trimmed());
 
-            if(username == usr && password == pwd){
-                isOk = true;
-                break;
-            }
+        QByteArray res = decrypt_Aes128_ECB_PKCS7_HEX(QByteArray::fromHex(accountInfoFile.readAll()), m_aesKey);
+        res.chop(res.at(res.size() - 1));
 
-            lineData = accountInfoFile.readLine();
-        }
+        QJsonObject usrInfo = QJsonDocument::fromJson(res).object();
 
-        if(!isOk){
+
+        if(usrInfo.find(username) == usrInfo.end()){
             backJson["code"] = 400;
-            backJson["msg"] = "用户或者密码错误";
+            backJson["msg"] = "用户错误";
+
+            resp->content_type = APPLICATION_JSON;
+            resp->body = QJsonDocument(backJson).toJson().toStdString();
+            return 200;
+        }else if(usrInfo.value(username).toString() != password){
+            backJson["code"] = 400;
+            backJson["msg"] = "密码错误";
 
             resp->content_type = APPLICATION_JSON;
             resp->body = QJsonDocument(backJson).toJson().toStdString();
             return 200;
         }
 
+        // QString lineData = accountInfoFile.readLine();
+
+        // while(!lineData.isEmpty()){
+        //     QList usrPwdList = lineData.split(":");
+        //     if(usrPwdList.size() != 2){
+        //         lineData = accountInfoFile.readLine();
+        //         continue;
+        //     }
+        //     QString usr = usrPwdList.at(0).trimmed();
+        //     QString pwd = usrPwdList.at(1).trimmed();
+
+        //     if(username == usr && password == pwd){
+        //         isOk = true;
+        //         break;
+        //     }
+
+        //     lineData = accountInfoFile.readLine();
+        // }
+
+        // if(!isOk){
+        //     backJson["code"] = 400;
+        //     backJson["msg"] = "用户或者密码错误";
+
+        //     resp->content_type = APPLICATION_JSON;
+        //     resp->body = QJsonDocument(backJson).toJson().toStdString();
+        //     //resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson().data(), m_aesKey).toStdString();
+        //     return 200;
+        // }
+
         backJson["code"] = 200;
         backJson["msg"] = "success";
         backJson["token"] = "1";
         resp->content_type = APPLICATION_JSON;
-        resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        resp->body = QString(QJsonDocument(backJson).toJson()).toStdString();
+        // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson().data(), m_aesKey).toStdString();
         return 200;
 
     });
@@ -334,7 +369,7 @@ void MyHttpServer::createHttpserver(int port)
         backJson.insert("code", 200);
         backJson.insert("msg", "ok");
 
-        restartApplication();
+        emit signalRestartApplication();
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QJsonDocument(backJson).toJson().toStdString();
@@ -377,8 +412,9 @@ void MyHttpServer::createHttpserver(int port)
         // cfgJson.insert("controllers", lights);
 
         resp->content_type = APPLICATION_JSON;
-        resp->body = QString(QJsonDocument(m_cfgJson).toJson()).toUtf8().toStdString();
+        // resp->body = QString(QJsonDocument(m_cfgJson).toJson()).toUtf8().toStdString();
 
+        resp->body = crypt_Aes128_ECB_PKCS7_HEX(QJsonDocument(m_cfgJson).toJson(), m_aesKey).toStdString();
         return 200;
 
     });
@@ -395,6 +431,11 @@ void MyHttpServer::createHttpserver(int port)
         backJson.insert("msg", "ok");
 
 
+        // 控制器是否有重复
+
+        // if(){
+        //     return
+        // }
 
         // QString body = QString::fromStdString(req->body);
         // //QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
@@ -436,7 +477,7 @@ void MyHttpServer::createHttpserver(int port)
     });
 
     // 提交安全桩配置信息
-    m_router->POST("/anQuanZhuang/updateCfgInfo", [](HttpRequest* req, HttpResponse* resp) {
+    m_router->POST("/anQuanZhuang/updateCfgInfo", [this](HttpRequest* req, HttpResponse* resp) {
 
         // const char* Token;  = "session_id=Y3VybF91c2VyOjEyMw==; Max-Age=7200; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Lax";
         //  resp->SetHeader("Set-Cookie", Token);
@@ -454,6 +495,7 @@ void MyHttpServer::createHttpserver(int port)
 
             resp->content_type = APPLICATION_JSON;
             resp->body = QJsonDocument(backJson).toJson().toStdString();
+            // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson(), m_aesKey).toStdString();
             return 200;
         }
 
@@ -461,6 +503,7 @@ void MyHttpServer::createHttpserver(int port)
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson(), m_aesKey).toStdString();
         return 200;
     });
 
@@ -474,16 +517,28 @@ void MyHttpServer::createHttpserver(int port)
     /*          GET            */
     /* API handlers */
     // curl -v http://ip:port/ping
-    m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
+    m_router->GET("/ping", [this](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 =  {
-            {"time", "最后更新时间：2025年04月14日"},
+            {"time", "最后更新时间：2025年04月16日"},
             {"Name", "尤特斯警示灯服务"},
-            {"Version", "0.7"},
-            {"Msg", "新增web功能，支持修改配置和调试"}
+            {"Version", "0.8"},
+            {"Msg", "新增aes加密"}
         };
-        return resp->Json(ex3);
-        //return resp->String("connected............");
+
+        QJsonObject backJson;
+        backJson.insert("time", "最后更新时间：2025年04月16日");
+        backJson.insert("Name", "尤特斯警示灯服务");
+        backJson.insert("Version", "0.8");
+        backJson.insert("Msg", "新增aes加密");
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QJsonDocument(backJson).toJson().toStdString();
+
+
+        // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson(), m_aesKey).toStdString();
+        return 200;
+        // return resp->Json(ex3);
     });
 
     // curl -v http://ip:port/paths
@@ -1506,11 +1561,16 @@ void MyHttpServer::add_directory_handlers(HttpServer &server, const QString &bas
     }
 }
 
-void MyHttpServer::restartApplication()
+QByteArray MyHttpServer::crypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key)
 {
-    QProcess::startDetached(QCoreApplication::applicationFilePath());
-    QCoreApplication::exit();
+    return QAESEncryption::Crypt(QAESEncryption::AES_128, QAESEncryption::ECB, plaintext, key, "", QAESEncryption::PKCS7).toHex();
 }
+
+QByteArray MyHttpServer::decrypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key)
+{
+    return QAESEncryption::Decrypt(QAESEncryption::AES_128, QAESEncryption::ECB, plaintext, key, "", QAESEncryption::PKCS7);
+}
+
 
 bool MyHttpServer::controllerIsUseful(Controller *controller, QString TermIp, QJsonObject &backJson)
 {

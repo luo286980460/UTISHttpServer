@@ -14,7 +14,8 @@ SOURCES += \
         mainclass.cpp \
         myhttpserver.cpp \
         producer.cpp \
-        producerworker.cpp
+        producerworker.cpp \
+        qaesencryption.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,7 +30,8 @@ HEADERS += \
     mainclass.h \
     myhttpserver.h \
     producer.h \
-    producerworker.h
+    producerworker.h \
+    qaesencryption.h
 
 win32: LIBS += -L$$PWD/libs/libhv/ -llibhv.dll
 

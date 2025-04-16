@@ -20,6 +20,7 @@ public:
 
     void updateControllList(QList<Controller*>* controllList);      // 更新警示灯控制器列表
     void setCfgJson(QJsonObject& cfgJson);
+    void stop();
 
 private:
     void createHttpserver(int port);                // 开启httpserver
@@ -46,16 +47,15 @@ private:
     // 旧版协议
     QJsonObject parseLightJson(QJsonObject& json);          // 解析 雾灯 json数据 2.0 版本
 
-
     void add_file_handler(HttpServer& server, const QString& basepath, const QString& path);
     void add_directory_handlers(HttpServer& server, const QString& basepath, const QString& path = "");
-
-
-    void restartApplication();
+    QByteArray crypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key);
+    QByteArray decrypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key);
 
 signals:
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
     void signalSetCfgJson(QByteArray cfgJson);
+    void signalRestartApplication();
 
 public slots:
 
@@ -64,6 +64,9 @@ public:
     HttpService* m_router;
     QList<Controller*>* m_controllList = nullptr;   // 警示灯控制器列表
     QJsonObject m_cfgJson;
+
+private:
+    QByteArray m_aesKey = "Utis00000000LsCb";
 };
 
 

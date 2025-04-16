@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QJsonDocument>
+#include <QProcess>
 
 #define CFG_JSON        "/cfg.json"
 
@@ -80,6 +81,7 @@ bool MainClass::initHttpserver()
     m_myHttpServer->setCfgJson(m_cfgJson);
     connect(m_myHttpServer, &MyHttpServer::signalWrite2Kafka, this, &MainClass::slotWrite2Kafka);
     connect(m_myHttpServer, &MyHttpServer::signalSetCfgJson, this, &MainClass::slotSetCfgJson);
+    connect(m_myHttpServer, &MyHttpServer::signalRestartApplication, this, &MainClass::slotRestartApplication);
 
 
     m_myHttpServer->updateControllList(&m_controllList);
@@ -182,6 +184,19 @@ bool MainClass::initControlls()
     }
 
     return true;
+}
+
+void MainClass::slotRestartApplication()
+{
+    if(m_myHttpServer){
+        m_myHttpServer->stop();
+    }
+
+    QStringList msgList;
+    msgList << "1" << "2";
+
+    QProcess::startDetached(QCoreApplication::applicationFilePath(), msgList);
+    QCoreApplication::exit();
 }
 
 // bool MainClass::initTcpClient()
