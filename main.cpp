@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     // 安装自定义消息处理函数
-    //qInstallMessageHandler(messageHandler);
+    // qInstallMessageHandler(messageHandler);
 
     MainClass mainClass;
 

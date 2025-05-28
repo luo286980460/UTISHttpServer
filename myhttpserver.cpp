@@ -232,15 +232,16 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
 
-        return resp->String(QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseLightBroadcast(jsonObj));
     });
     m_router->POST("/jingShiDeng/Broadcast", [this](HttpRequest* req, HttpResponse* resp) {
 
@@ -248,18 +249,16 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        resp->content_type = APPLICATION_JSON;
-        resp->body = QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString().c_str();
-        return 200;
-
-        // return resp->String(QJsonDocument(parseLightBroadcast(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseLightBroadcast(jsonObj));
     });
 
 
@@ -270,29 +269,33 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseLightBroadcastNot(jsonObj)).toJson().toStdString());
+
+        return respReturnJson(resp, parseLightBroadcastNot(jsonObj));
     });
+
     m_router->POST("/jingShiDeng/BroadcastNot", [this](HttpRequest* req, HttpResponse* resp) {
 
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseLightBroadcastNot(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseLightBroadcastNot(jsonObj));
     });
 
     // 雾灯轨迹开关
@@ -302,29 +305,32 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseLightPathTracking(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseLightPathTracking(jsonObj));
     });
+
     m_router->POST("/jingShiDeng/PathTracking", [this](HttpRequest* req, HttpResponse* resp) {
 
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseLightPathTracking(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseLightPathTracking(jsonObj));
     });
 
     // 雾灯状态更新
@@ -334,29 +340,33 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseUpdateLightState(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseUpdateLightState(jsonObj));
     });
+
     m_router->POST("/jingShiDeng/UpdateLightState", [this](HttpRequest* req, HttpResponse* resp) {
 
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
-            QJsonObject jsonBack;
-            jsonBack.insert("code", 1);
-            jsonBack.insert("msg", "Content-Type must be application/json");
-            return resp->String(QJsonDocument(jsonBack).toJson().toStdString());
+
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
         }
 
-        return resp->String(QJsonDocument(parseUpdateLightState(jsonObj)).toJson().toStdString());
+        return respReturnJson(resp, parseUpdateLightState(jsonObj));
     });
 
 
@@ -367,13 +377,12 @@ void MyHttpServer::createHttpserver(int port)
 
         QJsonObject backJson;
         backJson.insert("code", 200);
-        backJson.insert("msg", "ok");
+        backJson.insert("msg", "success");
 
         emit signalRestartApplication();
 
-        resp->content_type = APPLICATION_JSON;
-        resp->body = QJsonDocument(backJson).toJson().toStdString();
-        return 200;
+
+        return respReturnJson(resp, parseUpdateLightState(backJson));
     });
 
     // 拉取警示灯配置信息
@@ -454,7 +463,7 @@ void MyHttpServer::createHttpserver(int port)
         // //     return 200;
         // // }
 
-        qDebug() << req->body.c_str();
+        qDebug() << "提交警示灯配置信息: " << req->body.c_str();
 
         emit signalSetCfgJson(req->body.c_str());
 
@@ -476,36 +485,94 @@ void MyHttpServer::createHttpserver(int port)
         return resp->String(QJsonDocument(parseLightJson(jsonObj)).toJson().toStdString());
     });
 
+
+    // ******************       安全桩开始       ************************
+
+    // 拉取安全桩配置信息
+    m_router->GET("/anQuanZhuang/getCfgInfo", [this](HttpRequest* req, HttpResponse* resp) {
+
+        Q_UNUSED(req);
+        QJsonObject anQuanZhuangCfgJson;
+
+        anQuanZhuangCfgJson.insert("LEDIP","192.168.0.55:8000");
+        anQuanZhuangCfgJson.insert("anQuanZhuangIP","192.168.0.55:8000");
+        anQuanZhuangCfgJson.insert("screenContentBefore","安全行车");
+        anQuanZhuangCfgJson.insert("screenContentAfter","文明驾驶");
+        anQuanZhuangCfgJson.insert("fontColor","红");
+        anQuanZhuangCfgJson.insert("trafficLightColor","红");
+
+
+
+        resp->content_type = APPLICATION_JSON;
+        // resp->body = QString(QJsonDocument(m_cfgJson).toJson()).toUtf8().toStdString();
+
+        resp->body = crypt_Aes128_ECB_PKCS7_HEX(QJsonDocument(anQuanZhuangCfgJson).toJson(), m_aesKey).toStdString();
+        return 200;
+
+    });
+
     // 提交安全桩配置信息
-    m_router->POST("/anQuanZhuang/updateCfgInfo", [this](HttpRequest* req, HttpResponse* resp) {
+    m_router->POST("/anQuanZhuang/setCfgInfo", [](HttpRequest* req, HttpResponse* resp) {
 
         // const char* Token;  = "session_id=Y3VybF91c2VyOjEyMw==; Max-Age=7200; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Lax";
         //  resp->SetHeader("Set-Cookie", Token);
+
 
         QJsonObject backJson;
         backJson.insert("code", 200);
         backJson.insert("msg", "ok");
 
-        QString body = QString::fromStdString(req->body);
-        QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
-        if("application/json" != contentType){
-            backJson["code"] = 400;
-            backJson["msg"] = "非法请求头";
+
+        // 控制器是否有重复
+
+        // if(){
+        //     return
+        // }
+
+        // QString body = QString::fromStdString(req->body);
+        // //QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+        // qDebug() << body;
 
 
-            resp->content_type = APPLICATION_JSON;
-            resp->body = QJsonDocument(backJson).toJson().toStdString();
-            // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson(), m_aesKey).toStdString();
-            return 200;
-        }
+        // // QString body = QString::fromStdString(req->body);
+        // // QString contentType = QString::fromStdString(req->GetHeader("ConTent-Type")).trimmed().replace(" ", "");
+        // // if("application/json" != contentType){
+        // //     backJson["code"] = 400;
+        // //     backJson["msg"] = "非法请求头";
 
-        qDebug() << body;
+
+        // //     resp->content_type = APPLICATION_JSON;
+        // //     resp->body = QJsonDocument(backJson).toJson().toStdString();
+        // //     return 200;
+        // // }
+
+        qDebug() << "提安全桩配置信息: " << req->body.c_str();
+
+        // emit signalSetCfgJson(req->body.c_str());
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
-        // resp->body = aes128_ECB_PKCS7_HEX(QJsonDocument(backJson).toJson(), m_aesKey).toStdString();
+        //resp->body = req->Body();
         return 200;
     });
+
+    // 重启安全桩服务
+    m_router->GET("/anQuanZhuang/restart", [this](HttpRequest* req, HttpResponse* resp) {
+        Q_UNUSED(req);
+
+
+        QJsonObject backJson;
+        backJson.insert("code", 200);
+        backJson.insert("msg", "ok");
+
+
+
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QJsonDocument(backJson).toJson().toStdString();
+        return 200;
+    });
+
+     // ******************       安全桩结束       ************************
 
 
     /*          POST            */
@@ -520,17 +587,17 @@ void MyHttpServer::createHttpserver(int port)
     m_router->GET("/ping", [this](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 =  {
-            {"time", "最后更新时间：2025年04月16日"},
+            {"time", "最后更新时间：2025年05月28日"},
             {"Name", "尤特斯警示灯服务"},
-            {"Version", "0.8"},
-            {"Msg", "新增aes加密"}
+            {"Version", "0.9"},
+            {"Msg", "修改返回值的请求头为json"}
         };
 
         QJsonObject backJson;
-        backJson.insert("time", "最后更新时间：2025年04月16日");
+        backJson.insert("time", "最后更新时间：2025年05月28日");
         backJson.insert("Name", "尤特斯警示灯服务");
-        backJson.insert("Version", "0.8");
-        backJson.insert("Msg", "新增aes加密");
+        backJson.insert("Version", "0.9");
+        backJson.insert("Msg", "修改返回值的请求头为json");
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QJsonDocument(backJson).toJson().toStdString();
@@ -1569,6 +1636,23 @@ QByteArray MyHttpServer::crypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteA
 QByteArray MyHttpServer::decrypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key)
 {
     return QAESEncryption::Decrypt(QAESEncryption::AES_128, QAESEncryption::ECB, plaintext, key, "", QAESEncryption::PKCS7);
+}
+
+bool MyHttpServer::headerIsOk(HttpRequest *req, QJsonObject &backJson)
+{
+    if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+        backJson["code"] = 400;
+        backJson["msg"] = "请求头需要 application/json";
+        return false;
+    }
+    return true;
+}
+
+int MyHttpServer::respReturnJson(HttpResponse *resp, QJsonObject json)
+{
+    resp->content_type = APPLICATION_JSON;
+    resp->body = QJsonDocument(json).toJson().toStdString().c_str();
+    return 200;
 }
 
 

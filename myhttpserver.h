@@ -52,6 +52,12 @@ private:
     QByteArray crypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key);
     QByteArray decrypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByteArray key);
 
+    // // 防断电同步命令
+    // void reSendCmd();   // 防止设备断电以后没有内容，定时发送最后的状态
+
+    bool headerIsOk(HttpRequest* req, QJsonObject& backJson);
+    int respReturnJson(HttpResponse* resp, QJsonObject json);
+
 signals:
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
     void signalSetCfgJson(QByteArray cfgJson);

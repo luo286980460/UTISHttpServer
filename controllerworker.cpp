@@ -16,6 +16,7 @@ ControllerWorker::ControllerWorker(QString ip, int port, int sendingInterval, in
     , m_ControllerPort(port)
 {
 
+    m_cmdlightRun << "FF 55 01 D3 EA AA" << "FF 55 02 CC EC AA" << "FF 55 03 C2 B7 AA" << "FF 55 04 BB AC AA";
 }
 
 void ControllerWorker::boadCast(QStringList cmdList)
@@ -56,13 +57,19 @@ void ControllerWorker::initCheckTimer()
 
     connect(m_checkTimer, &QTimer::timeout, this, [=]{
 
+        // static int ii = 0;
+        // if(ii++ == 2 )
+        //     qDebug() << "workMode" << workMode;
         //qDebug() << "m_cmdList: " << m_cmdList;
 
         if(workMode == 1){              // 控灯模式
+            qDebug() << "控灯模式";
             sendCmd2Controller();
             workMode = 2;
 
-        }else if(workMode ==2){         // 查询模式
+        }else if(workMode == 2){         // 查询模式
+
+                qDebug() << "m_checkstate" << m_checkstate;
             // 是否在等数据返回
             if(waitForData > 0){
 
@@ -84,11 +91,12 @@ void ControllerWorker::initCheckTimer()
 
 
             // 当前是什么查询状态
-
             QStringList* cmdList = nullptr;
             QString cmd;
             switch(m_checkstate){
             case 0:
+                workMode = 3;
+                qDebug() << "no查询";
                 break;
             case 1:
                 // 需要查1
@@ -136,6 +144,13 @@ void ControllerWorker::initCheckTimer()
                 waitForData = 250;
             }else{
                 m_checkstate = 0;
+            }
+        }else if(workMode == 3){         // 跑马模式
+            if(m_lightRunOn){
+                qDebug() << "跑马模式开";
+            }else{
+                workMode = 0;
+                qDebug() << "跑马模式关";
             }
         }
     });
@@ -207,7 +222,6 @@ void ControllerWorker::slotInitTcp(QString ip, int port)
 
     for (int i=0; i< 5; i++)  // 连接
     {
-        qDebug() << "i: " << i;
         if(m_tcpSocket->waitForConnected(1000)){
             qDebug() << (QString("控制器[%1:%2]连接成功").arg(ip).arg(port));
             break;
@@ -361,4 +375,44 @@ void ControllerWorker::slotLightPowerOn(bool on)
 
 
     QThread::msleep(500);
+}
+
+void ControllerWorker::lightRun(int index)
+{
+
+    // 关闭所有
+    if(m_connectType == "TCP"){
+        m_tcpSocket->write(QByteArray::fromHex("FF 55 FF A0 F0 AA"));
+        m_tcpSocket->waitForBytesWritten();
+
+        qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg("FF 55 FF A0 F0 AA"));
+    }else{
+        m_udpSocket->writeDatagram(QByteArray::fromHex(m_cmdlightRun.at(index).toLatin1()), QHostAddress(m_ControllerIp), m_ControllerPort);
+        qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg("FF 55 FF A0 F0 AA"));
+    }
+
+    QString cmd;
+    while(index >= 0){
+        for(int i=0; i<m_lightRunHead; i++){
+            if(index >= 0){
+
+                // cmd += m_cmdlightRun.at(index);
+                // cmd += " ";
+                if(m_connectType == "TCP"){
+                    m_tcpSocket->write(QByteArray::fromHex(m_cmdlightRun.at(index).toLatin1()));
+                    m_tcpSocket->waitForBytesWritten();
+                    qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg(m_cmdlightRun.at(index)));
+                }else{
+                    m_udpSocket->writeDatagram(QByteArray::fromHex(m_cmdlightRun.at(index).toLatin1()), QHostAddress(m_ControllerIp), m_ControllerPort);
+                    qDebug() << (QString("控制器:%1[%2]").arg(m_ControllerIp).arg(m_cmdlightRun.at(index)));
+                }
+            }
+            else{
+                break;
+            }
+            index--;
+        }
+
+        index -= m_lightRunTail;
+    }
 }

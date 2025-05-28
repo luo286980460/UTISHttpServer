@@ -48,12 +48,7 @@ win32: LIBS += -L$$PWD/libs/librdkafka/ -llibrdkafka++.dll
 INCLUDEPATH += $$PWD/include/librdkafka
 DEPENDPATH += $$PWD/include/librdkafka
 
-# win32: LIBS += -L$$PWD/libs/librdkafka/ -llibrdkafka.dll
-
-# INCLUDEPATH += $$PWD/include/librdkafka
-# DEPENDPATH += $$PWD/include/librdkafka
-
-unix:!macx: LIBS += -L$$PWD/libs/librdkafka -lrdkafka++
+unix:!macx: LIBS += -L$$PWD/libs/librdkafka/ -lrdkafka++
 
 INCLUDEPATH += $$PWD/include/librdkafka
 DEPENDPATH += $$PWD/include/librdkafka

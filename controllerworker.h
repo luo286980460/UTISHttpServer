@@ -72,7 +72,15 @@ private:
     QString m_ControllerIp;     // 控制器 ip
     int m_ControllerPort;       // 控制器 port
     bool m_lightPowerOn = false;
-    QString m_connectType;          // 连接方式 TCP/UDP
+    QString m_connectType;      // 连接方式 TCP/UDP
+
+    // 跑马模式
+    bool m_lightRunOn = false;  // 跑马模式开关
+    QStringList m_cmdlightRun;  // 跑马命令列表
+    int m_lightRunHead;         // 马头数量
+    int m_lightRunTail;         // 马尾数量
+
+    void lightRun(int index);   // 跑马逻辑
 
 };
 
