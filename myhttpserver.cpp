@@ -232,6 +232,9 @@ void MyHttpServer::createHttpserver(int port)
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
+
+        qDebug() << jsonDoc;
+
         QJsonObject backJson;
         backJson["code"] = 200;
         backJson["msg"] = "success";
@@ -241,14 +244,17 @@ void MyHttpServer::createHttpserver(int port)
         }
 
 
+
         return respReturnJson(resp, parseLightBroadcast(jsonObj));
     });
+
     m_router->POST("/jingShiDeng/Broadcast", [this](HttpRequest* req, HttpResponse* resp) {
 
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
 
+        qDebug() << jsonDoc;
 
         QJsonObject backJson;
         backJson["code"] = 200;
@@ -260,7 +266,6 @@ void MyHttpServer::createHttpserver(int port)
 
         return respReturnJson(resp, parseLightBroadcast(jsonObj));
     });
-
 
     // 非广播控灯
     m_router->POST("/light/BroadcastNot", [this](HttpRequest* req, HttpResponse* resp) {
@@ -276,7 +281,6 @@ void MyHttpServer::createHttpserver(int port)
         if(!headerIsOk(req, backJson)){
             return respReturnJson(resp, backJson);
         }
-
 
         return respReturnJson(resp, parseLightBroadcastNot(jsonObj));
     });
@@ -584,20 +588,24 @@ void MyHttpServer::createHttpserver(int port)
     /*          GET            */
     /* API handlers */
     // curl -v http://ip:port/ping
-    m_router->GET("/ping", [this](HttpRequest* req, HttpResponse* resp) {
+    m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 =  {
-            {"time", "最后更新时间：2025年05月28日"},
+            {"time", "最后更新时间：2025年06月13日"},
             {"Name", "尤特斯警示灯服务"},
-            {"Version", "0.9"},
-            {"Msg", "修改返回值的请求头为json"}
+            {"Version", "0.10"},
+            {"Msg", " ver 0.9\
+             1. 多接口新增Name字段,旧接口为小写name\
+             2. 修复部分bug"}
         };
 
         QJsonObject backJson;
-        backJson.insert("time", "最后更新时间：2025年05月28日");
+        backJson.insert("time", "最后更新时间：2025年06月13日");
         backJson.insert("Name", "尤特斯警示灯服务");
-        backJson.insert("Version", "0.9");
-        backJson.insert("Msg", "修改返回值的请求头为json");
+        backJson.insert("Version", "0.10");
+        backJson.insert("Msg", " ver 0.9\
+    1. 多接口新增Name字段,旧接口为小写name\
+    2. 修复部分bug");
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QJsonDocument(backJson).toJson().toStdString();
@@ -806,15 +814,15 @@ bool MyHttpServer::missingParameter(QJsonObject &json, QJsonObject &backJson)
         return true;
     }
 
-    if(json.find("name") == json.end()) {
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "缺少必要参数 name ";
-        return true;
-    }else if(!json.find("name")->isString()){
-        backJson.find("code").value() = 1;
-        backJson.find("msg").value() = "name 数据类型错误 应该为 string";
-        return true;
-    }
+    // if(json.find("name") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 name ";
+    //     return true;
+    // }else if(!json.find("name")->isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "name 数据类型错误 应该为 string";
+    //     return true;
+    // }
 
     return false;
 }
@@ -836,7 +844,16 @@ bool MyHttpServer::missingParameterBroadcast(QJsonObject &json, QJsonObject &bac
         return true;
     }
 
-
+    // name
+    // if(json.find("Name") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Name ";
+    //     return true;
+    // }else if(!json.value("name").isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Name 数据类型错误 应该为 string";
+    //     return true;
+    // }
     // 控制器 设备编号
     // if(json.find("DeviceId") == json.end()) {
     //     backJson.find("code").value() = 1;
@@ -1201,6 +1218,17 @@ bool MyHttpServer::missingParameterBroadcastNot(QJsonObject &json, QJsonObject &
         return true;
     }
 
+    // name
+    // if(json.find("Name") == json.end()) {
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "缺少必要参数 Name ";
+    //     return true;
+    // }else if(!json.value("name").isString()){
+    //     backJson.find("code").value() = 1;
+    //     backJson.find("msg").value() = "Name 数据类型错误 应该为 string";
+    //     return true;
+    // }
+
     // 控制器 设备编号
     // if(json.find("DeviceId") == json.end()) {
     //     backJson.find("code").value() = 1;
@@ -1383,7 +1411,8 @@ QJsonObject MyHttpServer::parseLightJson(QJsonObject &json)
     QString TermIp = json["TermIp"].toString();     // 获取控制器 ip:port
     QString ip = TermIp.split(":").at(0);           // 获取控制器 ip
     int port = TermIp.split(":").at(1).toInt();     // 获取控制器 port
-    QString name = json["name"].toString();         // 获取 name
+    QString Name = json["name"].toString();         // 获取 Name
+
     QString DeviceId = json["DeviceId"].toString(); // 获取 DeviceId
     int Broadcast = json["Broadcast"].toInt();      // 获取 Broadcast
     QJsonArray TermId = json["TermId"].toArray();   // 获取雾灯编号 TermId
@@ -1588,6 +1617,7 @@ QJsonObject MyHttpServer::parseLightJson(QJsonObject &json)
     sendDataListJson.insert("Content", ContentStr);
     sendDataListJson.insert("DeviceId", DeviceId);
     sendDataListJson.insert("Luminance", Luminance);
+    sendDataListJson.insert("Name", Name);
     if(Flicker.size() == 2 || json.find("Flicker") != json.end()){
         sendDataListJson.insert("Flicker", Flicker);
     }

@@ -76,6 +76,7 @@ QJsonObject Controller::getKafkaJson()
     m_kafkaJson.insert("Version", m_Version);
     m_kafkaJson.insert("Content", m_Content);
     m_kafkaJson.insert("Lights", lights);
+    m_kafkaJson.insert("Name", m_name);
 
     return m_kafkaJson;
 }
@@ -156,6 +157,9 @@ void Controller::sendControlCmd(QStringList& cmdList, QJsonObject& json)
         m_PathTracking = json.value("PathTracking").toInt();     // 控制器 ip:port
     }
 
+    if(json.find("Name") != json.end()){
+        m_name = json.value("Name").toString();                          // 控制器 灯版本
+    }
 
     if(json.find("Content") != json.end()){
         m_Content = json.value("Content").toString();                       // 控制器 全部显示内容
@@ -259,6 +263,9 @@ void Controller::sendControlCmdBroadcast(QStringList &cmdList, QJsonObject &json
         m_PathTracking = json.value("PathTracking").toInt();     // 控制器 ip:port
     }
 
+    if(json.find("Name") != json.end()){
+        m_name = json.value("Name").toString();     // 控制器 ip:port
+    }
 
     if(json.find("Content") != json.end()){
         m_Content = json.value("Content").toString();                       // 控制器 全部显示内容
@@ -319,6 +326,9 @@ void Controller::sendControlCmdBroadcastNot(QStringList &cmdList, QJsonObject &j
     }
     if(json.find("DeviceId") != json.end()){
         m_DeviceId = json.value("DeviceId").toString();                     // 控制器 设备编号
+    }
+    if(json.find("Name") != json.end()){                                    // 预案
+        m_name = json.value("Name").toString();
     }
 
     QJsonArray lightArray = json.find("Lights")->toArray();

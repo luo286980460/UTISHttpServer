@@ -78,6 +78,8 @@ private:
     QJsonObject m_kafkaJson;                // 上传kafka的json
     QString m_topic;                        // 需要上传的kafka的主题
     QString m_kafkaKey = "light";           // 需要上传的kafka的key
+    QString m_name;                         // 预案
+    QString m_devicId;                      // 设备ID
 };
 
 #endif // CONTROLLER_H
