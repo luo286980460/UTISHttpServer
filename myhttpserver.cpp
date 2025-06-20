@@ -223,7 +223,6 @@ void MyHttpServer::createHttpserver(int port)
 
     });
 
-
     // 警示灯
     // 广播控灯
     m_router->POST("/light/Broadcast", [this](HttpRequest* req, HttpResponse* resp) {
@@ -373,7 +372,6 @@ void MyHttpServer::createHttpserver(int port)
         return respReturnJson(resp, parseUpdateLightState(jsonObj));
     });
 
-
     // 重启警示灯服务
     m_router->GET("/jingShiDeng/restart", [this](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
@@ -483,12 +481,49 @@ void MyHttpServer::createHttpserver(int port)
         //获取json数据包
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
         QJsonObject jsonObj = jsonDoc.object();
+        qDebug() << jsonDoc;
 
         //qDebug()<< jsonObj;
 
         return resp->String(QJsonDocument(parseLightJson(jsonObj)).toJson().toStdString());
     });
 
+    // 警示灯跑马灯开关
+    m_router->POST("/jingShiDeng/Marquee", [this](HttpRequest* req, HttpResponse* resp) {
+
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
+        }
+
+        return respReturnJson(resp, parseLightMarquee(jsonObj, backJson));
+    });
+
+    // 警示灯红蓝警示灯开关
+    m_router->POST("/jingShiDeng/RedAndBlue", [this](HttpRequest* req, HttpResponse* resp) {
+
+        //获取json数据包
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QString::fromStdString(req->body).toUtf8());
+        QJsonObject jsonObj = jsonDoc.object();
+
+
+        QJsonObject backJson;
+        backJson["code"] = 200;
+        backJson["msg"] = "success";
+
+        if(!headerIsOk(req, backJson)){
+            return respReturnJson(resp, backJson);
+        }
+
+        return respReturnJson(resp, parseLightRedAndBlue(jsonObj, backJson));
+    });
 
     // ******************       安全桩开始       ************************
 
@@ -561,7 +596,7 @@ void MyHttpServer::createHttpserver(int port)
     });
 
     // 重启安全桩服务
-    m_router->GET("/anQuanZhuang/restart", [this](HttpRequest* req, HttpResponse* resp) {
+    m_router->GET("/anQuanZhuang/restart", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
 
 
@@ -590,22 +625,12 @@ void MyHttpServer::createHttpserver(int port)
     // curl -v http://ip:port/ping
     m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
-        Json ex3 =  {
-            {"time", "最后更新时间：2025年06月13日"},
-            {"Name", "尤特斯警示灯服务"},
-            {"Version", "0.10"},
-            {"Msg", " ver 0.9\
-             1. 多接口新增Name字段,旧接口为小写name\
-             2. 修复部分bug"}
-        };
 
         QJsonObject backJson;
-        backJson.insert("time", "最后更新时间：2025年06月13日");
+        backJson.insert("time", "最后更新时间：2025年06月20日");
         backJson.insert("Name", "尤特斯警示灯服务");
-        backJson.insert("Version", "0.10");
-        backJson.insert("Msg", " ver 0.9\
-    1. 多接口新增Name字段,旧接口为小写name\
-    2. 修复部分bug");
+        backJson.insert("Version", "1.0.0");
+        backJson.insert("Msg", "红蓝功能已加, tcp控灯已修复, 跑马功能本地已测试,大批量灯未测试,没有环境");
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QJsonDocument(backJson).toJson().toStdString();
@@ -854,6 +879,7 @@ bool MyHttpServer::missingParameterBroadcast(QJsonObject &json, QJsonObject &bac
     //     backJson.find("msg").value() = "Name 数据类型错误 应该为 string";
     //     return true;
     // }
+
     // 控制器 设备编号
     // if(json.find("DeviceId") == json.end()) {
     //     backJson.find("code").value() = 1;
@@ -1052,7 +1078,11 @@ QJsonObject MyHttpServer::parseLightBroadcast(QJsonObject &json)
             // 打开电源
             emit controller->signalLightPowerOn(true);
 
-            cmdStr.replace("%2", qstr2Hex(content));
+            if(content == "a"){
+                cmdStr.replace("%2", "A0 D5");
+            }else{
+                cmdStr.replace("%2", qstr2Hex(content));
+            }
         }else{                                              // 灭灯
             // 关闭电源
             emit controller->signalLightPowerOn(false);
@@ -1351,9 +1381,17 @@ QJsonObject MyHttpServer::parseLightBroadcastNot(QJsonObject &json)
 
     for(int i=0; i<lightArray.size(); i++){
         QJsonObject lightJson = lightArray.at(i).toObject();
-        sendDataList.append(QString(cmdStr)
-                                .arg(lightJson.value("LightId").toInt(), 2, 16, QLatin1Char('0'))
-                                .arg(qstr2Hex(lightJson.value("Content").toString())).toUpper());
+        QString content = lightJson.value("Content").toString();
+
+        if(content == "a"){
+            sendDataList.append(QString(cmdStr)
+                                    .arg(lightJson.value("LightId").toInt(), 2, 16, QLatin1Char('0'))
+                                    .arg("A0 D5").toUpper());
+        }else{
+            sendDataList.append(QString(cmdStr)
+                                    .arg(lightJson.value("LightId").toInt(), 2, 16, QLatin1Char('0'))
+                                    .arg(qstr2Hex(lightJson.value("Content").toString())).toUpper());
+        }
     }
 
     // 打开电源
@@ -1670,7 +1708,7 @@ QByteArray MyHttpServer::decrypt_Aes128_ECB_PKCS7_HEX(QByteArray plaintext, QByt
 
 bool MyHttpServer::headerIsOk(HttpRequest *req, QJsonObject &backJson)
 {
-    if(QString::fromStdString(req->GetHeader("Content-Type")) != "application/json"){
+    if(QString::fromStdString(req->GetHeader("Content-Type")).toLower() != "application/json"){
         backJson["code"] = 400;
         backJson["msg"] = "请求头需要 application/json";
         return false;
@@ -1684,7 +1722,6 @@ int MyHttpServer::respReturnJson(HttpResponse *resp, QJsonObject json)
     resp->body = QJsonDocument(json).toJson().toStdString().c_str();
     return 200;
 }
-
 
 bool MyHttpServer::controllerIsUseful(Controller *controller, QString TermIp, QJsonObject &backJson)
 {
@@ -1915,6 +1952,84 @@ QJsonObject MyHttpServer::parseLightPathTracking(QJsonObject &json)
     jsonObj.insert("PathTracking", PathTracking);
 
     emit controller->sendControlCmd(cmdList, jsonObj);
+
+    return backJson;
+}
+
+QJsonObject MyHttpServer::parseLightMarquee(QJsonObject &json, QJsonObject &backJson)
+{
+    //如果必要参数不存在，或者不合理，直接返回
+    if(missingParameterMarquee(json, backJson)){
+        return backJson;
+    }
+
+    QString ControllerIpPort                                // 控制器 ip:port
+        = json["ControllerIpPort"].toString();
+    QString ip = ControllerIpPort.split(":").at(0);         // 控制器 ip
+    int port = ControllerIpPort.split(":").at(1).toInt();   // 控制器 port
+    Controller* controller = getControllerFromIpPort(ip, port); // 控制器
+
+    if(!controller) {
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "控制器：" + ControllerIpPort + "不在线";
+        return backJson;
+    }
+
+    controller->sendControlCmdMarquee(json);
+
+    return backJson;
+}
+
+bool MyHttpServer::missingParameterMarquee(QJsonObject &json, QJsonObject &backJson)
+{
+    // 控制器 ip:port
+    if(json.find("ControllerIpPort") == json.end()) {
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "缺少必要参数 ControllerIpPort ";
+        return true;
+    }else if(!json.value("ControllerIpPort").isString()){
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "ControllerIpPort 数据类型错误 应该为 string";
+        return true;
+    }else if(json.value("ControllerIpPort").toString().split(":").size() != 2){
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "ControllerIpPort 不合法,格式范例:192.168.1.186:8886";
+        return true;
+    }
+
+    // 控制器 ip:port
+    if(json.find("Switch") == json.end()) {
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "缺少必要参数 Switch ";
+        return true;
+    }else if(!json.value("Switch").isBool()){
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "Switch 数据类型错误 应该为 bool";
+        return true;
+    }
+
+    return false;
+}
+
+QJsonObject MyHttpServer::parseLightRedAndBlue(QJsonObject &json, QJsonObject &backJson)
+{
+    //如果必要参数不存在，或者不合理，直接返回
+    if(missingParameterMarquee(json, backJson)){
+        return backJson;
+    }
+
+    QStringList sendDataList;                       // 需要发送的命令列表
+    QString ControllerIpPort                                // 控制器 ip:port
+        = json["ControllerIpPort"].toString();
+    QString ip = ControllerIpPort.split(":").at(0);         // 控制器 ip
+    int port = ControllerIpPort.split(":").at(1).toInt();   // 控制器 port
+    Controller* controller = getControllerFromIpPort(ip, port); // 控制器
+
+    if(!controller) {
+        backJson.find("code").value() = 1;
+        backJson.find("msg").value() = "控制器：" + ControllerIpPort + "不在线";
+        return backJson;
+    }
 
     return backJson;
 }

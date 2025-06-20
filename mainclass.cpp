@@ -72,6 +72,8 @@ bool MainClass::initHttpserver()
     // int port = m_cfgJson.value("port").toInt();
     int port = m_cfgJson.value("serverPort").toString().toInt();
 
+    qDebug() << port;
+
     if(port < 1) {
         qCritical() << " error UtisDeviceServer Port = " + QString::number(port);
         return false;
@@ -149,6 +151,7 @@ bool MainClass::initControlls()
                 smallNumbers = list.at(0).toInt();
 
                 if(smallNumbers < 1 || smallNumbers > 254){
+                    qDebug() << "smallNumbers < 1 || smallNumbers > 254" << smallNumbers << " " << smallNumbers;
                     return false;
                 }
 
@@ -160,6 +163,7 @@ bool MainClass::initControlls()
 
 
                 if(smallNumbers < 1 || bigNumbers > 254 || smallNumbers >= bigNumbers){
+                    qDebug() << "smallNumbers < 1 || bigNumbers > 254 || smallNumbers >= bigNumbers" << smallNumbers << " " << smallNumbers;
                     return false;
                 }
 
@@ -167,6 +171,7 @@ bool MainClass::initControlls()
                     LightId << QString::number(i);
                 }
             }else{
+                qDebug() << "lightId error";
                 return false;
             }
         }

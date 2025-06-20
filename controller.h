@@ -42,6 +42,11 @@ public:
     void sendCheckCmd(int& checkMode, QStringList& idList);           // 发送查询命令
     void sendControlCmdBroadcast(QStringList& cmdList, QJsonObject& json);          // 发送广播命令
     void sendControlCmdBroadcastNot(QStringList& cmdList, QJsonObject& json);       // 发送非广播命令
+    void sendControlCmdMarquee(QStringList& cmdList, QJsonObject& json);            // 发送跑马灯命令
+    void sendControlCmdRedAndBlue(QStringList& cmdList, QJsonObject& json);         // 发送红蓝灯命令
+    void sendControlCmdMarquee(QJsonObject& json);                                  // 发送跑马灯命令
+    void generatedMarqueeData(bool bocast, QStringList hexContentList);             // 生成跑马灯命令列表
+
     s_light* getLightFromLightId(int lightId);
 
 private:
@@ -56,6 +61,9 @@ signals:
     void signalSendCheckCmd(QStringList cmdList);       // 发送查询命令
     void signalWrite2Kafka(QString topic, QString strJson, QString strKey);
     void signalLightPowerOn(bool on);                   // 电源开关
+    void signalOpenMarquee(bool open);                  // 跑马开关
+    void signalUpdateLisghtIds(QStringList lightIds);   // worker刷新灯id列表
+    void signalUpdateMarqueeData(QStringList hexContentList);        // 更新跑马灯命令列表
 
 public slots:
     void slotLightIsOff(int lightId);

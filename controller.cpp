@@ -14,6 +14,9 @@ Controller::Controller(QString ip, int port, QString topic, int sendingInterval,
     m_work->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_work, &QObject::deleteLater);
     connect(this, &Controller::signalInitWorker, m_work, &ControllerWorker::slotInitWorker);
+    connect(this, &Controller::signalOpenMarquee, m_work, &ControllerWorker::slotOpenMarquee);
+    connect(this, &Controller::signalUpdateLisghtIds, m_work, &ControllerWorker::slotUpdateLisghtIds);
+    connect(this, &Controller::signalUpdateMarqueeData, m_work, &ControllerWorker::slotUpdateMarqueeData);
 
 
     connect(this, &Controller::signalInitTcp, m_work, &ControllerWorker::slotInitTcp);
@@ -23,7 +26,6 @@ Controller::Controller(QString ip, int port, QString topic, int sendingInterval,
     connect(this, &Controller::signalSendControlCmd, m_work, &ControllerWorker::slotSendControlCmd);
     connect(this, &Controller::signalSendCheckCmd, m_work, &ControllerWorker::slotSendCheckCmd);
     connect(this,&Controller::signalLightPowerOn, m_work,&ControllerWorker::slotLightPowerOn);
-
 
     connect(m_work, &ControllerWorker::signalWrite2Kafka, this, &Controller::slotWrite2Kafka);
     connect(m_work, &ControllerWorker::signalLightIsOff, this, &Controller::slotLightIsOff);
@@ -39,7 +41,6 @@ Controller::Controller(QString ip, int port, QString topic, int sendingInterval,
     m_PathTracking = 0;              // 控制器 轨迹模式（0-关闭 1-模式1 2-模式2）
     m_PathTrackingTime = 1;          // 控制器 轨迹延时（1-20s）
     m_Version = -1;                  // 控制器 灯版本
-
 }
 
 void Controller::start()
@@ -114,6 +115,7 @@ void Controller::addLights(QStringList lightIds)
             continue;
         }
     }
+    emit signalUpdateLisghtIds(lightIds);
 }
 
 int Controller::hasLight(int lightId)
@@ -317,6 +319,8 @@ void Controller::sendControlCmdBroadcast(QStringList &cmdList, QJsonObject &json
 
     emit signalSendControlCmd(cmdList);
     slotWrite2Kafka();
+    //emit signalGeneratedMarqueeData(true, cmdList);
+    generatedMarqueeData(true, cmdList);
 }
 
 void Controller::sendControlCmdBroadcastNot(QStringList &cmdList, QJsonObject &json)
@@ -344,6 +348,34 @@ void Controller::sendControlCmdBroadcastNot(QStringList &cmdList, QJsonObject &j
 
     emit signalSendControlCmd(cmdList);
     slotWrite2Kafka();
+    generatedMarqueeData(false, cmdList);
+}
+
+void Controller::sendControlCmdMarquee(QJsonObject &json)
+{
+    emit signalOpenMarquee(json.value("Switch").toBool());                // 跑马开关
+}
+
+void Controller::generatedMarqueeData(bool bocast, QStringList cmdList)
+{
+    if(cmdList.size() < 0) return;
+
+    QStringList mList;
+
+    if(bocast){
+        for(int i=0; i<m_lights.size(); i++){
+            // QString cmd = QString(DISPLAY_FONT).arg(m_lights.at(i)->LightId).arg(cmdList.at(0));
+            mList << QString(DISPLAY_FONT).arg(m_lights.at(i)->LightId, 2, 16, QLatin1Char('0')).arg(cmdList.at(0).mid(9, 5)).toUpper();
+        }
+    }else{
+        for(int i=0, j = 0; i<m_lights.size(); i++, j++){
+            // QString cmd = QString(DISPLAY_FONT).arg(m_lights.at(i)->LightId).arg(cmdList.at(i));
+            if(j == cmdList.size()) j = 0;
+            mList << cmdList.at(j);
+        }
+    }
+
+    emit signalUpdateMarqueeData(mList);
 }
 
 s_light *Controller::getLightFromLightId(int lightId)

@@ -41,8 +41,18 @@ private:
                             QJsonObject &backJson);
     Controller* getControllerFromIpPort(QString ip,         // 从ip和Port获取控制器对象
                                         int Port);
-    QJsonObject parseUpdateLightState(QJsonObject& json);  // 解析 雾灯 轨迹请求
+    QJsonObject parseUpdateLightState(QJsonObject& json);   // 解析 雾灯 更新雾灯状态信息到kafka请求
     QJsonObject parseLightPathTracking(QJsonObject& json);  // 解析 雾灯 轨迹请求
+
+    // 雾灯 跑马灯
+    QJsonObject parseLightMarquee(QJsonObject& json,        // 解析 雾灯 跑马灯开关请求
+                                  QJsonObject &backJson);
+    bool missingParameterMarquee(QJsonObject& json,         // parseLightMarquee 是否缺少必要参数  parseLightRedAndBlue 这个也兼容红蓝的
+                                    QJsonObject& backJson);
+
+    // 雾灯 红蓝警示灯
+    QJsonObject parseLightRedAndBlue(QJsonObject& json,     // 解析 雾灯 红蓝警示灯开关请求
+                                     QJsonObject &backJson);
 
     // 旧版协议
     QJsonObject parseLightJson(QJsonObject& json);          // 解析 雾灯 json数据 2.0 版本

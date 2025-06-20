@@ -19,30 +19,32 @@ class ControllerWorker : public QObject
     Q_OBJECT
 public:
     explicit ControllerWorker(QString ip, int port, int sendingInterval, int sendingCount, QString ConnectType, QObject *parent = nullptr);
-    void boadCast(QStringList cmdList);                 // 广播命令
-    void boadCastNot(QStringList cmdList);              // 非广播命令
+    void boadCast(QStringList cmdList);             // 广播命令
+    void boadCastNot(QStringList cmdList);          // 非广播命令
 
-    int m_sendingInterval = 500;    // 重复发送命令的间隔
-    int m_sendingCount = 5;         // 每一次发送的命令数量
-    QStringList m_cmdList;          // 普通控灯命令列表
+    int m_sendingInterval = 500;                    // 重复发送命令的间隔
+    int m_sendingCount = 5;                         // 每一次发送的命令数量
+    QStringList m_cmdList;                          // 普通控灯命令列表
     //QStringList m_cmdCheckList;   // 查询命令列表
-    int workMode = 2;               // 工作模式 1-控灯模式 2-查询模式
+    int workMode = 2;                               // 工作模式 1-控灯模式 2-查询模式
     QStringList m_cmdCheckState;                    // 查询 控制板状态 命令列表
     QStringList m_cmdCheckPowerState;               // 查询 控制板电源状态 命令列表
     QStringList m_cmdCheckPathTrackingDelay;        // 查询 轨迹跟踪延时 命令列表
     QStringList m_cmdCheckPathTrackingMode;         // 查询 轨迹跟踪模式 命令列表
-    int waitForData = 0;            // 等待灯回复
-    int currentCheckLightId = -1;   // 当前查询的灯ID
-    int m_checkstate = 5;           // 0 不查询 1查1 2查2  3查3  5查全部
-    QTimer* m_checkTimer;           // 查询计时器
+    int waitForData = 0;                            // 等待灯回复
+    int currentCheckLightId = -1;                   // 当前查询的灯ID
+    int m_checkstate = 5;                           // 0 不查询 1查1 2查2  3查3  5查全部
+    QTimer* m_checkTimer;                           // 查询计时器
 
-    int getLightIdFromCmd(QString cmd);         // 从命令里面获取灯ID
+    int getLightIdFromCmd(QString cmd);             // 从命令里面获取灯ID
     // int getCmdTypeFromCmd(QString cmd);     // 从命令里面获取命令类型
     void initCheckTimer();
-    void sendCmd2Controller();                  // 发送普通控灯命令
+    void sendCmd2Controller();                      // 发送普通控灯命令
 
 
 private:
+    void tcpConnect2Host();
+    void sendCmd(QString cmd);
 
 signals:
     void signalLightIsOff(int lightId);
@@ -58,9 +60,12 @@ public slots:
     void slotFlushAutoCheckCmd(QStringList cmdCheckState,
                                QStringList cmdCheckPowerState,
                                QStringList cmdCheckPathTrackingDelay);
-    void slotSendControlCmd(QStringList cmdList);     // 发送控制命令
-    void slotSendCheckCmd(QStringList cmdList);       // 发送查询命令
-    void slotLightPowerOn(bool on);// 电源开关
+    void slotSendControlCmd(QStringList cmdList);   // 发送控制命令
+    void slotSendCheckCmd(QStringList cmdList);     // 发送查询命令
+    void slotLightPowerOn(bool on);                 // 电源开关
+    void slotOpenMarquee(bool open);                // 跑马开关
+    void slotUpdateLisghtIds(QStringList lightIds); // worker刷新灯id列表
+    void slotUpdateMarqueeData(QStringList hexContentList);// 更行跑马灯命令列表
 
 
 private:
@@ -72,16 +77,19 @@ private:
     QString m_ControllerIp;     // 控制器 ip
     int m_ControllerPort;       // 控制器 port
     bool m_lightPowerOn = false;
-    QString m_connectType;      // 连接方式 TCP/UDP
+    QStringList m_lightIds;
 
     // 跑马模式
     bool m_lightRunOn = false;  // 跑马模式开关
     QStringList m_cmdlightRun;  // 跑马命令列表
-    int m_lightRunHead;         // 马头数量
-    int m_lightRunTail;         // 马尾数量
+    int m_marqueeHead = 1;      // 马头数量
+    int m_marqueeTail = 1;      // 马尾数量
+    int m_headIndex = 0;
 
-    void lightRun(int index);   // 跑马逻辑
+    void marquee();             // 跑马逻辑
 
+    //
+    int m_IntervalTime = 500;
 };
 
 #endif // CONTROLLERWORKER_H

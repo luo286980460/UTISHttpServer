@@ -58,8 +58,8 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 
     // 打开日志文件（如果未打开）
     if (!s_logFile.isOpen()) {
-        QString logDirPath = QCoreApplication::applicationDirPath() + "/log";
-        QString logFilePath = logDirPath + "/qdebugLog.txt";
+        QString logDirPath = QCoreApplication::applicationDirPath() + "/log/";
+        QString logFilePath = logDirPath + "qdebugLog.txt";
 
         if(!QDir(logDirPath).exists()){
             QDir dir;

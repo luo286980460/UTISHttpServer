@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_ControllerWorker_t {
-    QByteArrayData data[22];
-    char stringdata0[306];
+    QByteArrayData data[28];
+    char stringdata0[393];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -53,7 +53,13 @@ QT_MOC_LITERAL(17, 224, 25), // "cmdCheckPathTrackingDelay"
 QT_MOC_LITERAL(18, 250, 18), // "slotSendControlCmd"
 QT_MOC_LITERAL(19, 269, 16), // "slotSendCheckCmd"
 QT_MOC_LITERAL(20, 286, 16), // "slotLightPowerOn"
-QT_MOC_LITERAL(21, 303, 2) // "on"
+QT_MOC_LITERAL(21, 303, 2), // "on"
+QT_MOC_LITERAL(22, 306, 15), // "slotOpenMarquee"
+QT_MOC_LITERAL(23, 322, 4), // "open"
+QT_MOC_LITERAL(24, 327, 19), // "slotUpdateLisghtIds"
+QT_MOC_LITERAL(25, 347, 8), // "lightIds"
+QT_MOC_LITERAL(26, 356, 21), // "slotUpdateMarqueeData"
+QT_MOC_LITERAL(27, 378, 14) // "hexContentList"
 
     },
     "ControllerWorker\0signalLightIsOff\0\0"
@@ -64,7 +70,9 @@ QT_MOC_LITERAL(21, 303, 2) // "on"
     "slotFlushAutoCheckCmd\0cmdCheckState\0"
     "cmdCheckPowerState\0cmdCheckPathTrackingDelay\0"
     "slotSendControlCmd\0slotSendCheckCmd\0"
-    "slotLightPowerOn\0on"
+    "slotLightPowerOn\0on\0slotOpenMarquee\0"
+    "open\0slotUpdateLisghtIds\0lightIds\0"
+    "slotUpdateMarqueeData\0hexContentList"
 };
 #undef QT_MOC_LITERAL
 
@@ -74,7 +82,7 @@ static const uint qt_meta_data_ControllerWorker[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      12,   14, // methods
+      15,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -82,20 +90,23 @@ static const uint qt_meta_data_ControllerWorker[] = {
        2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   74,    2, 0x06 /* Public */,
-       4,    0,   77,    2, 0x06 /* Public */,
+       1,    1,   89,    2, 0x06 /* Public */,
+       4,    0,   92,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    0,   78,    2, 0x0a /* Public */,
-       6,    2,   79,    2, 0x0a /* Public */,
-       9,    0,   84,    2, 0x0a /* Public */,
-      10,    0,   85,    2, 0x0a /* Public */,
-      11,    0,   86,    2, 0x0a /* Public */,
-      12,    1,   87,    2, 0x0a /* Public */,
-      14,    3,   90,    2, 0x0a /* Public */,
-      18,    1,   97,    2, 0x0a /* Public */,
-      19,    1,  100,    2, 0x0a /* Public */,
-      20,    1,  103,    2, 0x0a /* Public */,
+       5,    0,   93,    2, 0x0a /* Public */,
+       6,    2,   94,    2, 0x0a /* Public */,
+       9,    0,   99,    2, 0x0a /* Public */,
+      10,    0,  100,    2, 0x0a /* Public */,
+      11,    0,  101,    2, 0x0a /* Public */,
+      12,    1,  102,    2, 0x0a /* Public */,
+      14,    3,  105,    2, 0x0a /* Public */,
+      18,    1,  112,    2, 0x0a /* Public */,
+      19,    1,  115,    2, 0x0a /* Public */,
+      20,    1,  118,    2, 0x0a /* Public */,
+      22,    1,  121,    2, 0x0a /* Public */,
+      24,    1,  124,    2, 0x0a /* Public */,
+      26,    1,  127,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -112,6 +123,9 @@ static const uint qt_meta_data_ControllerWorker[] = {
     QMetaType::Void, QMetaType::QStringList,   13,
     QMetaType::Void, QMetaType::QStringList,   13,
     QMetaType::Void, QMetaType::Bool,   21,
+    QMetaType::Void, QMetaType::Bool,   23,
+    QMetaType::Void, QMetaType::QStringList,   25,
+    QMetaType::Void, QMetaType::QStringList,   27,
 
        0        // eod
 };
@@ -134,6 +148,9 @@ void ControllerWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 9: _t->slotSendControlCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
         case 10: _t->slotSendCheckCmd((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
         case 11: _t->slotLightPowerOn((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 12: _t->slotOpenMarquee((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 13: _t->slotUpdateLisghtIds((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
+        case 14: _t->slotUpdateMarqueeData((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -184,13 +201,13 @@ int ControllerWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 15)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 15;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 15)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 12;
+        _id -= 15;
     }
     return _id;
 }
