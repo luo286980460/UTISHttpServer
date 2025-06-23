@@ -383,8 +383,10 @@ void MyHttpServer::createHttpserver(int port)
 
         emit signalRestartApplication();
 
-
-        return respReturnJson(resp, parseUpdateLightState(backJson));
+        resp->content_type = APPLICATION_JSON;
+        resp->body = QString(QJsonDocument(backJson).toJson()).toUtf8().toStdString();
+        //resp->body = req->Body();
+        return 200;
     });
 
     // 拉取警示灯配置信息
@@ -627,10 +629,10 @@ void MyHttpServer::createHttpserver(int port)
         Q_UNUSED(req);
 
         QJsonObject backJson;
-        backJson.insert("time", "最后更新时间：2025年06月20日");
+        backJson.insert("time", "最后更新时间：2025年06月23日");
         backJson.insert("Name", "尤特斯警示灯服务");
-        backJson.insert("Version", "1.0.0");
-        backJson.insert("Msg", "红蓝功能已加, tcp控灯已修复, 跑马功能本地已测试,大批量灯未测试,没有环境");
+        backJson.insert("Version", "1.0.1");
+        backJson.insert("Msg", "修复了更新配置信息以后不返回登录界面的问题");
 
         resp->content_type = APPLICATION_JSON;
         resp->body = QJsonDocument(backJson).toJson().toStdString();
